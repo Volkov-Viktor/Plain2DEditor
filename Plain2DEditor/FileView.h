@@ -3,6 +3,7 @@
 
 #include "ViewTree.h"
 
+//------------------------------------------------------------------------------------------------------------
 class CFileViewToolBar : public CMFCToolBar
 {
 	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
@@ -12,7 +13,7 @@ class CFileViewToolBar : public CMFCToolBar
 
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
-
+//------------------------------------------------------------------------------------------------------------
 class CFileView : public CDockablePane
 {
 // Construction
@@ -52,4 +53,4 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 };
-
+//------------------------------------------------------------------------------------------------------------

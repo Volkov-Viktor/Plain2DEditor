@@ -12,17 +12,17 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
 // CFileView
+//------------------------------------------------------------------------------------------------------------
+CFileView::~CFileView()
+{
+}
+//------------------------------------------------------------------------------------------------------------
 
 CFileView::CFileView() noexcept
 {
 }
-
-CFileView::~CFileView()
-{
-}
-
+//------------------------------------------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
@@ -37,10 +37,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CWorkspaceBar message handlers
-
+//------------------------------------------------------------------------------------------------------------
 int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
@@ -82,13 +79,13 @@ int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnSize(UINT nType, int cx, int cy)
 {
 	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::FillFileView()
 {
 	HTREEITEM hRoot = m_wndFileView.InsertItem(_T("FakeApp files"), 0, 0);
@@ -123,7 +120,7 @@ void CFileView::FillFileView()
 	m_wndFileView.Expand(hSrc, TVE_EXPAND);
 	m_wndFileView.Expand(hInc, TVE_EXPAND);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CTreeCtrl* pWndTree = (CTreeCtrl*) &m_wndFileView;
@@ -152,7 +149,7 @@ void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
 	pWndTree->SetFocus();
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EXPLORER, point.x, point.y, this, TRUE);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::AdjustLayout()
 {
 	if (GetSafeHwnd() == nullptr)
@@ -168,43 +165,43 @@ void CFileView::AdjustLayout()
 	m_wndToolBar.SetWindowPos(nullptr, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndFileView.SetWindowPos(nullptr, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnProperties()
 {
 	AfxMessageBox(_T("Properties...."));
 
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnFileOpen()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnFileOpenWith()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnDummyCompile()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnEditCut()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnEditCopy()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnEditClear()
 {
 	// TODO: Add your command handler code here
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
@@ -216,14 +213,14 @@ void CFileView::OnPaint()
 	rectTree.InflateRect(1, 1);
 	dc.Draw3dRect(rectTree, ::GetSysColor(COLOR_3DSHADOW), ::GetSysColor(COLOR_3DSHADOW));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnSetFocus(CWnd* pOldWnd)
 {
 	CDockablePane::OnSetFocus(pOldWnd);
 
 	m_wndFileView.SetFocus();
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CFileView::OnChangeVisualStyle()
 {
 	m_wndToolBar.CleanUpLockedImages();
@@ -253,5 +250,4 @@ void CFileView::OnChangeVisualStyle()
 
 	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
 }
-
-
+//------------------------------------------------------------------------------------------------------------

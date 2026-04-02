@@ -1,6 +1,7 @@
 
 #pragma once
 
+//------------------------------------------------------------------------------------------------------------
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -11,7 +12,7 @@ public:
 
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
-
+//------------------------------------------------------------------------------------------------------------
 class CPropertiesWnd : public CDockablePane
 {
 // Construction
@@ -59,4 +60,4 @@ protected:
 
 	int m_nComboHeight;
 };
-
+//------------------------------------------------------------------------------------------------------------

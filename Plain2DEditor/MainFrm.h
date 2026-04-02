@@ -8,6 +8,7 @@
 #include "OutputWnd.h"
 #include "PropertiesWnd.h"
 
+//------------------------------------------------------------------------------------------------------------
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -57,5 +58,5 @@ protected:
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 };
-
+//------------------------------------------------------------------------------------------------------------
 

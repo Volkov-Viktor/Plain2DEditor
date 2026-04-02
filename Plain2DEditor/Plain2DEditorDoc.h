@@ -5,7 +5,7 @@
 
 #pragma once
 
-
+//------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorDoc : public CDocument
 {
 protected: // create from serialization only

@@ -4,7 +4,7 @@
 
 #pragma once
 
-
+//------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorView : public CView
 {
 protected: // create from serialization only
@@ -44,9 +44,9 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 };
-
+//------------------------------------------------------------------------------------------------------------
 #ifndef _DEBUG  // debug version in Plain2DEditorView.cpp
 inline CPlain2DEditorDoc* CPlain2DEditorView::GetDocument() const
    { return reinterpret_cast<CPlain2DEditorDoc*>(m_pDocument); }
 #endif
-
+//------------------------------------------------------------------------------------------------------------

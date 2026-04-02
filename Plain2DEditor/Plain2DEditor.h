@@ -14,6 +14,7 @@
 // See Plain2DEditor.cpp for the implementation of this class
 //
 
+//------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorApp : public CWinAppEx
 {
 public:
@@ -36,5 +37,5 @@ public:
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 };
-
+//------------------------------------------------------------------------------------------------------------
 extern CPlain2DEditorApp theApp;
