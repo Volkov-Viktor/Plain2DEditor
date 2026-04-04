@@ -1,8 +1,4 @@
-
-// Plain2DEditor.cpp : Defines the class behaviors for the application.
-//
-
-#include "pch.h"
+#include "pch.h"  // Предварительно скомпилированный заголовок — ускоряет компиляцию
 #include "framework.h"
 #include "afxwinappex.h"
 #include "afxdialogex.h"
@@ -18,209 +14,196 @@
 
 
 // CPlain2DEditorApp
-
+//------------------------------------------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(CPlain2DEditorApp, CWinAppEx)
-	ON_COMMAND(ID_APP_ABOUT, &CPlain2DEditorApp::OnAppAbout)
-	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	// Standard print setup command
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
+	ON_COMMAND(ID_APP_ABOUT, &CPlain2DEditorApp::OnAppAbout) // обработчик команды «О программе» (вызывает диалоговое окно с информацией)
+	
+	// Стандартные команды для работы с документами на основе файлов
+	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew) // создать новый документ
+	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen) // открыть существующий документ
+	
+	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)  // команда настройки печати
 END_MESSAGE_MAP()
-
-
-// CPlain2DEditorApp construction
-
+//------------------------------------------------------------------------------------------------------------
 CPlain2DEditorApp::CPlain2DEditorApp() noexcept
 {
-	m_bHiColorIcons = TRUE;
-
-
-	m_nAppLook = 0;
-	// support Restart Manager
+	m_bHiColorIcons = TRUE; // используем полноцветные иконки (32 бита)
+	m_nAppLook = 0; // стиль интерфейса: 0 — стандартный вид Windows
+	
+	// // Поддержка Restart Manager (восстановление после сбоя)
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
-	// If the application is built using Common Language Runtime support (/clr):
-	//     1) This additional setting is needed for Restart Manager support to work properly.
-	//     2) In your project, you must add a reference to System.Windows.Forms in order to build.
+	// Если приложение собрано с поддержкой Common Language Runtime (/clr):
+	//   1) Эта настройка нужна для корректной работы Restart Manager.
+	//   2) В проекте должна быть ссылка на System.Windows.Forms.
 	System::Windows::Forms::Application::SetUnhandledExceptionMode(System::Windows::Forms::UnhandledExceptionMode::ThrowException);
 #endif
 
-	// TODO: replace application ID string below with unique ID string; recommended
-	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
+	// TODO: замените строку ID приложения на уникальную.
+	// Рекомендуемый формат: CompanyName.ProductName.SubProduct.VersionInformation
 	SetAppID(_T("Plain2DEditor.AppID.NoVersion"));
 
-	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance
+	// TODO: добавьте код инициализации здесь.
+	// Всю значимую инициализацию размещайте в InitInstance()
 }
-
-// The one and only CPlain2DEditorApp object
-
-CPlain2DEditorApp theApp;
-
-
-// CPlain2DEditorApp initialization
-
-BOOL CPlain2DEditorApp::InitInstance()
+//------------------------------------------------------------------------------------------------------------
+CPlain2DEditorApp theApp; // единственный экземпляр приложения CPlain2DEditorApp
+//------------------------------------------------------------------------------------------------------------
+BOOL CPlain2DEditorApp::InitInstance() // инициализация приложения CPlain2DEditorApp
 {
-	// InitCommonControlsEx() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
+	// InitCommonControlsEx() обязателен для Windows XP, если манифест приложения
+	// указывает на использование ComCtl32.dll версии 6+ (для поддержки визуальных стилей).
+	// Без этого создание окон будет неудачным.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
+
+	// Укажите классы общих элементов управления, которые вы хотите использовать
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
-	InitCommonControlsEx(&InitCtrls);
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls); // инициализация базового класса MFC
 
 	CWinAppEx::InitInstance();
 
 
-	// Initialize OLE libraries
+	// Инициализация библиотек OLE
 	if (!AfxOleInit())
 	{
 		AfxMessageBox(IDP_OLE_INIT_FAILED);
 		return FALSE;
 	}
 
-	AfxEnableControlContainer();
+	AfxEnableControlContainer(); // разрешить использование контейнеров элементов управления
+	EnableTaskbarInteraction(FALSE); // отключить взаимодействие с панелью задач Windows
 
-	EnableTaskbarInteraction(FALSE);
-
-	// AfxInitRichEdit2() is required to use RichEdit control
-	// AfxInitRichEdit2();
-
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	// of your final executable, you should remove from the following
-	// the specific initialization routines you do not need
-	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
+	// Стандартная инициализация
+	// Если вы не используете эти функции, удалите соответствующие блоки для уменьшения размера исполняемого файла
+	// Изменяем ключ реестра, где хранятся настройки приложения
+	// TODO: изменить эту строку на что‑то подходящее (название компании и т. д.)
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
-	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
+	LoadStdProfileSettings(4); // Загружаем стандартные настройки из INI‑файла (включая список последних файлов — MRU)
+	
+	InitContextMenuManager(); // Инициализация менеджера контекстных меню
+	InitKeyboardManager(); // Инициализация менеджера клавиатурных сокращений
+	InitTooltipManager(); // Инициализация менеджера всплывающих подсказок
 
-
-	InitContextMenuManager();
-
-	InitKeyboardManager();
-
-	InitTooltipManager();
 	CMFCToolTipInfo ttParams;
 	ttParams.m_bVislManagerTheme = TRUE;
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
-	// Register the application's document templates.  Document templates
-	//  serve as the connection between documents, frame windows and views
+	// Регистрируем шаблоны документов приложения. Шаблоны связывают:
+	// документы, окна фреймов и представления
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CPlain2DEditorDoc),
-		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CMainFrame), // главное окно SDI
 		RUNTIME_CLASS(CPlain2DEditorView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
 
 
-	// Parse command line for standard shell commands, DDE, file open
+	// Парсим командную строку на стандартные команды оболочки, DDE, открытие файлов
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
-	// Enable DDE Execute open
+	// Разрешаем открытие через DDE
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
 
-	// Dispatch commands specified on the command line.  Will return FALSE if
-	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	// Обрабатываем команды, указанные в командной строке. Вернёт FALSE, если
+	// приложение запущено с параметрами /RegServer, /Register, /Unregserver или /Unregister
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
-	// The one and only window has been initialized, so show and update it
+	// Главное окно инициализировано — показываем и обновляем его
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-	// call DragAcceptFiles only if there's a suffix
-	//  In an SDI app, this should occur after ProcessShellCommand
-	// Enable drag/drop open
+	// Вызываем DragAcceptFiles только если есть суффикс
+	// В SDI‑приложении это должно происходить после ProcessShellCommand
+	// Разрешаем перетаскивание файлов для открытия
 	m_pMainWnd->DragAcceptFiles();
 	return TRUE;
 }
-
+//------------------------------------------------------------------------------------------------------------
 int CPlain2DEditorApp::ExitInstance()
-{
-	//TODO: handle additional resources you may have added
-	AfxOleTerm(FALSE);
+{ // Метод завершения работы приложения
+	//TODO: обработайте дополнительные ресурсы, которые вы могли добавить в приложении
+	AfxOleTerm(FALSE); // завершение работы с библиотеками OLE (корректное отключение)
 
-	return CWinAppEx::ExitInstance();
+	return CWinAppEx::ExitInstance(); // вызов реализации базового класса для завершения работы MFC‑приложения
 }
-
-// CPlain2DEditorApp message handlers
-
-
-// CAboutDlg dialog used for App About
-
+//------------------------------------------------------------------------------------------------------------
 class CAboutDlg : public CDialogEx
-{
+{ // Диалоговое окно «О программе»(используется для отображения информации о приложении)
 public:
 	CAboutDlg() noexcept;
 
-// Dialog Data
+// Данные диалога
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
+	enum { IDD = IDD_ABOUTBOX }; // Идентификатор ресурса диалога (используется в дизайнере ресурсов)
 #endif
 
 protected:
+	// Метод обмена данными (Data Exchange) — поддерживает механизм DDX/DDV:
+	// DDX (Dialog Data Exchange) — обмен данными между элементами управления и переменными
+	// DDV (Dialog Data Validation) — валидация данных
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-// Implementation
+// Реализация
 protected:
-	DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP() // макрос объявления карты сообщений для диалогового окна
 };
-
+//------------------------------------------------------------------------------------------------------------
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
-{
+{ // Конструктор диалогового окна «О программе»
+	// Пустой конструктор: вся инициализация выполняется базовым классом CDialogEx
+	// IDD_ABOUTBOX — идентификатор ресурса диалога в файле ресурсов (.rc)
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
+{ // Метод обмена данными (DDX/DDV) для диалогового окна
 	CDialogEx::DoDataExchange(pDX);
 }
-
+//------------------------------------------------------------------------------------------------------------
+// Карта сообщений для диалогового окна CAboutDlg
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
-
-// App command to run the dialog
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::OnAppAbout()
-{
-	CAboutDlg aboutDlg;
-	aboutDlg.DoModal();
+{ // Команда приложения для отображения диалогового окна «О программе»
+	CAboutDlg aboutDlg; // Создаём экземпляр диалогового окна «О программе»
+	aboutDlg.DoModal(); // Отображаем окно в модальном режиме (блокирует основное окно до закрытия)
 }
-
-// CPlain2DEditorApp customization load/save methods
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::PreLoadState()
-{
+{ // Предварительная загрузка состояния приложения (инициализация контекстных меню)
 	BOOL bNameValid;
 	CString strName;
+
+	// Загружаем строку с названием меню «Правка» из ресурсов
 	bNameValid = strName.LoadString(IDS_EDIT_MENU);
 	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT); // добавление меню «Правка» в менеджер контекстных меню
+	
+	// Загружаем строку с названием меню «Обозреватель» из ресурсов
 	bNameValid = strName.LoadString(IDS_EXPLORER);
-	ASSERT(bNameValid);
+	ASSERT(bNameValid);  // Проверяем, что строка успешно загружена
+	// Добавляем меню «Обозреватель» в менеджер контекстных меню
 	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EXPLORER);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::LoadCustomState()
-{
+{ // Загрузка пользовательского состояния приложения
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::SaveCustomState()
-{
+{ // Сохранение пользовательского состояния приложения
 }
+//------------------------------------------------------------------------------------------------------------
 
-// CPlain2DEditorApp message handlers
 
 
 

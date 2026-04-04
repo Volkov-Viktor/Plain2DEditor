@@ -1,17 +1,17 @@
 
-// Plain2DEditorDoc.cpp : implementation of the CPlain2DEditorDoc class
-//
-
+// Plain2DEditorDoc.cpp — реализация класса CPlain2DEditorDoc (модель данных документа)
 #include "pch.h"
 #include "framework.h"
-// SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
-// and search filter handlers and allows sharing of document code with that project.
+// SHARED_HANDLERS может быть определён в проекте ATL для реализации:
+// - обработчиков предварительного просмотра;
+// - создания миниатюр (thumbnails);
+// - фильтров поиска.
+// Позволяет использовать общий код документа в нескольких проектах.
 #ifndef SHARED_HANDLERS
 #include "Plain2DEditor.h"
 #endif
 
 #include "Plain2DEditorDoc.h"
-
 #include <propkey.h>
 
 #ifdef _DEBUG
@@ -19,120 +19,104 @@
 #endif
 
 // CPlain2DEditorDoc
-
-IMPLEMENT_DYNCREATE(CPlain2DEditorDoc, CDocument)
-
+//------------------------------------------------------------------------------------------------------------
+IMPLEMENT_DYNCREATE(CPlain2DEditorDoc, CDocument) // регистрация класса для динамического создания (MFC)
 BEGIN_MESSAGE_MAP(CPlain2DEditorDoc, CDocument)
 END_MESSAGE_MAP()
-
-
-// CPlain2DEditorDoc construction/destruction
-
-CPlain2DEditorDoc::CPlain2DEditorDoc() noexcept
-{
-	// TODO: add one-time construction code here
-
-}
-
+//------------------------------------------------------------------------------------------------------------
 CPlain2DEditorDoc::~CPlain2DEditorDoc()
 {
 }
-
+//------------------------------------------------------------------------------------------------------------
+CPlain2DEditorDoc::CPlain2DEditorDoc() noexcept
+{
+	// TODO: добавьте код однократной инициализации здесь
+}
+//------------------------------------------------------------------------------------------------------------
 BOOL CPlain2DEditorDoc::OnNewDocument()
 {
-	if (!CDocument::OnNewDocument())
+	if (!CDocument::OnNewDocument()) // вызов реализации базового класса
 		return FALSE;
 
-	// TODO: add reinitialization code here
-	// (SDI documents will reuse this document)
+	// TODO: добавьте код повторной инициализации здесь
+	// (в SDI‑приложениях документ может переиспользоваться)
 
 	return TRUE;
 }
-
-
-
-
-// CPlain2DEditorDoc serialization
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorDoc::Serialize(CArchive& ar)
 {
-	if (ar.IsStoring())
+	if (ar.IsStoring())  // Режим сохранения документа
 	{
-		// TODO: add storing code here
+		// TODO: добавьте код сохранения данных документа здесь
+		// Например: запись геометрических объектов, настроек и т. д.
 	}
-	else
+	else  // Режим загрузки документа
 	{
-		// TODO: add loading code here
+		// TODO: добавьте код загрузки данных документа здесь
+		// Например: чтение и восстановление объектов из файла
 	}
 }
-
+//------------------------------------------------------------------------------------------------------------
 #ifdef SHARED_HANDLERS
-
-// Support for thumbnails
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
-{
-	// Modify this code to draw the document's data
+{ // Поддержка создания миниатюр для проводника Windows
+	// Заливаем область миниатюры цветом
 	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
 
-	CString strText = _T("TODO: implement thumbnail drawing here");
+	CString strText = _T("TODO: реализовать отрисовку миниатюры здесь");
 	LOGFONT lf;
 
+	// Получаем параметры системного шрифта по умолчанию
 	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
-	lf.lfHeight = 36;
+	lf.lfHeight = 36; // Устанавливаем размер шрифта
 
 	CFont fontDraw;
-	fontDraw.CreateFontIndirect(&lf);
+	fontDraw.CreateFontIndirect(&lf); // Создаём шрифт для отрисовки
 
 	CFont* pOldFont = dc.SelectObject(&fontDraw);
 	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
 	dc.SelectObject(pOldFont);
 }
-
-// Support for Search Handlers
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorDoc::InitializeSearchContent()
-{
+{ // Инициализация содержимого для поиска (поддержка Windows Search)
 	CString strSearchContent;
-	// Set search contents from document's data.
-	// The content parts should be separated by ";"
-
-	// For example:  strSearchContent = _T("point;rectangle;circle;ole object;");
+	// Формируем содержимое для поиска на основе данных документа
+	// Части содержимого разделяются символом ";"
+	// Пример: strSearchContent = _T("точка;прямоугольник;окружность;OLE‑объект;");
 	SetSearchContent(strSearchContent);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorDoc::SetSearchContent(const CString& value)
-{
+{ // Установка содержимого для поиска
 	if (value.IsEmpty())
-	{
-		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
-	}
+		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid); // удаление данных поиска, если строка пуста
 	else
 	{
 		CMFCFilterChunkValueImpl *pChunk = nullptr;
 		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
 		if (pChunk != nullptr)
 		{
-			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
-			SetChunkValue(pChunk);
+			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT); // устанавливаем текстовое значение для поиска
+			SetChunkValue(pChunk); // сохраняем данные поиска
 		}
 	}
 }
-
+//------------------------------------------------------------------------------------------------------------
 #endif // SHARED_HANDLERS
-
-// CPlain2DEditorDoc diagnostics
-
+//------------------------------------------------------------------------------------------------------------
 #ifdef _DEBUG
 void CPlain2DEditorDoc::AssertValid() const
 {
-	CDocument::AssertValid();
+	CDocument::AssertValid(); // Проверяем корректность состояния базового класса
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorDoc::Dump(CDumpContext& dc) const
 {
-	CDocument::Dump(dc);
+	CDocument::Dump(dc); // Выводим отладочную информацию о состоянии документа
 }
+//------------------------------------------------------------------------------------------------------------
 #endif //_DEBUG
-
-
-// CPlain2DEditorDoc commands

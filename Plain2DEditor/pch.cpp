@@ -1,5 +1,8 @@
-// pch.cpp: source file corresponding to the pre-compiled header
+// pch.cpp — исходный файл, соответствующий предварительно скомпилированному заголовку
+// Его задача — запустить процесс создания PCH (pre‑compiled header)
 
-#include "pch.h"
+#include "pch.h"  // Подключаем главный PCH‑заголовок: здесь перечислены все часто используемые заголовки
+                  // Компилятор обработает их один раз и сохранит результат в бинарном виде
 
-// When you are using pre-compiled headers, this source file is necessary for compilation to succeed.
+// При использовании предварительно скомпилированных заголовков этот файл обязателен
+// Без него компилятор не сможет создать PCH, и сборка проекта завершится ошибкой

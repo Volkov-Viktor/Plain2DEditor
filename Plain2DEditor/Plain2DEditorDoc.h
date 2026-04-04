@@ -1,7 +1,5 @@
 
 // Plain2DEditorDoc.h : interface of the CPlain2DEditorDoc class
-//
-
 
 #pragma once
 
@@ -46,3 +44,4 @@ protected:
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
 };
+//------------------------------------------------------------------------------------------------------------

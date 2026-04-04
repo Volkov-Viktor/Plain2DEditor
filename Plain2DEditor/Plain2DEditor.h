@@ -9,17 +9,11 @@
 
 #include "resource.h"       // main symbols
 
-
-// CPlain2DEditorApp:
-// See Plain2DEditor.cpp for the implementation of this class
-//
-
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorApp : public CWinAppEx
 {
 public:
 	CPlain2DEditorApp() noexcept;
-
 
 // Overrides
 public:

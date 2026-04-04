@@ -1,7 +1,3 @@
-
-// MainFrm.cpp : implementation of the CMainFrame class
-//
-
 #include "pch.h"
 #include "framework.h"
 #include "Plain2DEditor.h"
@@ -13,7 +9,7 @@
 #endif
 
 // CMainFrame
-
+//------------------------------------------------------------------------------------------------------------
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 const int  iMaxUserToolbars = 10;
@@ -28,29 +24,27 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
 END_MESSAGE_MAP()
-
+//------------------------------------------------------------------------------------------------------------
 static UINT indicators[] =
 {
-	ID_SEPARATOR,           // status line indicator
+	ID_SEPARATOR, // разделитель (начало области индикаторов)
 	ID_INDICATOR_CAPS,
 	ID_INDICATOR_NUM,
 	ID_INDICATOR_SCRL,
 };
-
-// CMainFrame construction/destruction
-
-CMainFrame::CMainFrame() noexcept
-{
-	// TODO: add member initialization code here
-	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
-}
-
+//------------------------------------------------------------------------------------------------------------
 CMainFrame::~CMainFrame()
 {
 }
-
-int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+//------------------------------------------------------------------------------------------------------------
+CMainFrame::CMainFrame() noexcept
 {
+	// TODO: добавить инициализацию полей класса
+	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
+}
+//------------------------------------------------------------------------------------------------------------
+int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{ // Инициализация всех ключевых элементов интерфейса
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -59,42 +53,45 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("Failed to create menubar\n");
-		return -1;      // fail to create
+		return -1;
 	}
 
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 
-	// prevent the menu bar from taking the focus on activation
-	CMFCPopupMenu::SetForceMenuFocus(FALSE);
+	CMFCPopupMenu::SetForceMenuFocus(FALSE); // отключение принудительного захвата фокуса меню при активации
 
+	// Создание панели инструментов с загрузкой иконок (выбор между высокоцветными и низкоцветными)
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
 		TRACE0("Failed to create toolbar\n");
-		return -1;      // fail to create
+		return -1;
 	}
 
+	// Установка названия панели инструментов из строкового ресурса
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
 	ASSERT(bNameValid);
 	m_wndToolBar.SetWindowText(strToolBarName);
 
+	// Добавление кнопки настройки панели инструментов
 	CString strCustomize;
 	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
 	ASSERT(bNameValid);
 	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 
-	// Allow user-defined toolbars operations:
-	InitUserToolbars(nullptr, uiFirstUserToolBarId, uiLastUserToolBarId);
+	InitUserToolbars(nullptr, uiFirstUserToolBarId, uiLastUserToolBarId);  // Инициализация пользовательских панелей инструментов (до 10 штук)
 
+	// Создание строки состояния и настройка индикаторов (Caps Lock, Num Lock и т. д.)
 	if (!m_wndStatusBar.Create(this))
 	{
 		TRACE0("Failed to create status bar\n");
-		return -1;      // fail to create
+		return -1;
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
+	// Включение док-функционала для меню и панели инструментов
+	// TODO: удалить эти строки, если док-функционал не нужен
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
@@ -102,21 +99,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_wndToolBar);
 
 
-	// enable Visual Studio 2005 style docking window behavior
+	// Настройка поведения док-окон (как в Visual Studio 2005)
 	CDockingManager::SetDockingMode(DT_SMART);
-	// enable Visual Studio 2005 style docking window auto-hide behavior
-	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+	EnableAutoHidePanes(CBRS_ALIGN_ANY);  // Включение режима автоскрытия панелей
 
-	// Load menu item image (not placed on any standard toolbars):
+	// Загрузка изображений для пунктов меню
 	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES, theApp.m_bHiColorIcons ? IDB_MENU_IMAGES_24 : 0);
 
-	// create docking windows
+	// Создание док-окон (дерево файлов, обозреватель классов и т. д.)
 	if (!CreateDockingWindows())
 	{
 		TRACE0("Failed to create docking windows\n");
 		return -1;
 	}
 
+	// Настройка и закрепление док-панелей
 	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndFileView);
@@ -127,26 +124,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndProperties);
 
-	// set the visual manager and style based on persisted value
-	OnApplicationLook(theApp.m_nAppLook);
-
-	// Enable toolbar and docking window menu replacement
-	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
-
-	// enable quick (Alt+drag) toolbar customization
-	CMFCToolBar::EnableQuickCustomization();
+	OnApplicationLook(theApp.m_nAppLook); // применение сохранённого стиля интерфейса
+	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR); // Включение меню настройки панелей («Настройка...» в меню «Вид»)
+	CMFCToolBar::EnableQuickCustomization(); // Включение быстрой настройки панелей (Alt+перетаскивание)
 
 	if (CMFCToolBar::GetUserImages() == nullptr)
-	{
-		// load user-defined toolbar images
+	{ // Загрузка пользовательских изображений для панелей (из файла UserImages.bmp)
 		if (m_UserImages.Load(_T(".\\UserImages.bmp")))
-		{
 			CMFCToolBar::SetUserImages(&m_UserImages);
-		}
 	}
 
-	// enable menu personalization (most-recently used commands)
-	// TODO: define your own basic commands, ensuring that each pulldown menu has at least one basic command.
+	// Настройка персонализации меню: определение базовых команд для списка «Недавно использованные»
+	// TODO: задайте собственные базовые команды — убедитесь, что в каждом выпадающем меню присутствует хотя бы одна такая команда.
 	CList<UINT, UINT> lstBasicCommands;
 
 	lstBasicCommands.AddTail(ID_FILE_NEW);
@@ -176,67 +165,66 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
-
+//------------------------------------------------------------------------------------------------------------
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
-{
+{ // Этот код выполняется до создания окна. Здесь можно изменить класс или стили окна.
 	if( !CFrameWndEx::PreCreateWindow(cs) )
 		return FALSE;
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
+	// TODO: Здесь можно изменить параметры окна (стиль, размер, заголовок и т. д.) через cs
 
 	return TRUE;
 }
-
+//------------------------------------------------------------------------------------------------------------
 BOOL CMainFrame::CreateDockingWindows()
-{
+{ // создание и инициализация док‑панели главного окна приложения
 	BOOL bNameValid;
 
-	// Create class view
+	// Создаём панель Class View
 	CString strClassView;
 	bNameValid = strClassView.LoadString(IDS_CLASS_VIEW);
 	ASSERT(bNameValid);
 	if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Class View window\n");
-		return FALSE; // failed to create
+		return FALSE;
 	}
 
-	// Create file view
+	// Создаём панель File View
 	CString strFileView;
 	bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
 	ASSERT(bNameValid);
 	if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create File View window\n");
-		return FALSE; // failed to create
+		return FALSE;
 	}
 
-	// Create output window
+	// Создаём окно Output
 	CString strOutputWnd;
 	bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND);
 	ASSERT(bNameValid);
 	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Output window\n");
-		return FALSE; // failed to create
+		return FALSE;
 	}
 
-	// Create properties window
+	// Создаём окно Properties
 	CString strPropertiesWnd;
 	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
 	ASSERT(bNameValid);
 	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Properties window\n");
-		return FALSE; // failed to create
+		return FALSE;
 	}
 
-	SetDockingWindowIcons(theApp.m_bHiColorIcons);
-	return TRUE;
+	SetDockingWindowIcons(theApp.m_bHiColorIcons); // Устанавливаем иконки для док‑панелей (с учётом режима цветов)
+	return TRUE; 
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
-{
+{ // Установка иконок для док‑панелей (с учётом режима цветов)
 	HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndFileView.SetIcon(hFileViewIcon, FALSE);
 
@@ -248,55 +236,50 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
-
 }
-
-// CMainFrame diagnostics
-
+//------------------------------------------------------------------------------------------------------------
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
-{
+{ // Проверка объекта на валидность (только в режиме отладки)
 	CFrameWndEx::AssertValid();
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::Dump(CDumpContext& dc) const
-{
+{ // Вывод содержимого объекта в диагностический контекст (только в режиме отладки)
 	CFrameWndEx::Dump(dc);
 }
 #endif //_DEBUG
-
-
-// CMainFrame message handlers
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::OnViewCustomize()
-{
+{ // Обработчик команды «Настройка...» для отображения диалогового окна настройки панелей инструментов
 	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* scan menus */);
 	pDlgCust->EnableUserDefinedToolbars();
 	pDlgCust->Create();
 }
-
+//------------------------------------------------------------------------------------------------------------
 LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
-{
+{ // обработка создания пользовательской панели инструментов
+
+	// Делегируем создание панели инструментов базовому классу
 	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
 	if (lres == 0)
-	{
 		return 0;
-	}
 
+	// Получаем указатель на созданную панель инструментов
 	CMFCToolBar* pUserToolbar = (CMFCToolBar*)lres;
 	ASSERT_VALID(pUserToolbar);
 
 	BOOL bNameValid;
 	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE); // загрузка текста для кнопки настройки из ресурсов
 	ASSERT(bNameValid);
 
-	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+	pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize); // добавление кнопки настройки на панель
 	return lres;
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::OnApplicationLook(UINT id)
-{
+{ // обработка изменения стиля интерфейса приложения (внешнего вида)
 	CWaitCursor wait;
 
 	theApp.m_nAppLook = id;
@@ -365,44 +348,37 @@ void CMainFrame::OnApplicationLook(UINT id)
 
 	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
-{
+{ // обновление состояния элементов управления, отвечающих за выбор стиля интерфейса (установка флажка напротив текущего стиля)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
-
-
+//------------------------------------------------------------------------------------------------------------
 BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext)
 {
-	// base class does the real work
-
+	// Загружаем фрейм через базовый класс — он выполняет основную работу
 	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
-	{
 		return FALSE;
-	}
 
-
-	// enable customization button for all user toolbars
+	// Добавляем кнопку настройки на все пользовательские панели инструментов
 	BOOL bNameValid;
 	CString strCustomize;
 	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
 	ASSERT(bNameValid);
 
-	for (int i = 0; i < iMaxUserToolbars; i ++)
+	for (int i = 0; i < iMaxUserToolbars; ++i)
 	{
 		CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
 		if (pUserToolbar != nullptr)
-		{
-			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-		}
+			pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize); // Включаем кнопку настройки: TRUE — показать, ID_VIEW_CUSTOMIZE — команда, strCustomize — текст кнопки
 	}
 
 	return TRUE;
 }
-
-
+//------------------------------------------------------------------------------------------------------------
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
-{
+{ // обработка изменения системных параметров (например, при смене темы оформления Windows)
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
 	m_wndOutput.UpdateFonts();
 }
+//------------------------------------------------------------------------------------------------------------

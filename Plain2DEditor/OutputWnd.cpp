@@ -12,46 +12,47 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
 // COutputBar
-
-COutputWnd::COutputWnd() noexcept
-{
-}
-
+//------------------------------------------------------------------------------------------------------------
 COutputWnd::~COutputWnd()
 {
 }
-
+//------------------------------------------------------------------------------------------------------------
+COutputWnd::COutputWnd() noexcept
+{
+}
+//------------------------------------------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(COutputWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
-
+//------------------------------------------------------------------------------------------------------------
 int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
-	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
+{ // инициализация окна вывода с вкладками(Build, Debug, Find) при создании окна
+
+	if (CDockablePane::OnCreate(lpCreateStruct) == -1) // Базовая инициализация через родительский класс
 		return -1;
 
 	CRect rectDummy;
 	rectDummy.SetRectEmpty();
 
-	// Create tabs window:
+	// создаём контейнер (m_wndTabs) вкладок
 	if (!m_wndTabs.Create(CMFCTabCtrl::STYLE_FLAT, rectDummy, this, 1))
 	{
 		TRACE0("Failed to create output tab window\n");
-		return -1;      // fail to create
+		return -1;
 	}
 
-	// Create output panes:
+	// Определяем стиль окон вывода: без интегральной высоты, дочернее окно, видимое, с горизонтальной и вертикальной прокруткой
 	const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL;
 
+	// Создаём три панели вывода (Build, Debug, Find)
 	if (!m_wndOutputBuild.Create(dwStyle, rectDummy, &m_wndTabs, 2) ||
 		!m_wndOutputDebug.Create(dwStyle, rectDummy, &m_wndTabs, 3) ||
 		!m_wndOutputFind.Create(dwStyle, rectDummy, &m_wndTabs, 4))
 	{
 		TRACE0("Failed to create output windows\n");
-		return -1;      // fail to create
+		return -1;
 	}
 
 	UpdateFonts();
@@ -59,7 +60,7 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CString strTabName;
 	BOOL bNameValid;
 
-	// Attach list windows to tab:
+	// Привязываем панели к вкладкам и задаём локализованные названия
 	bNameValid = strTabName.LoadString(IDS_BUILD_TAB);
 	ASSERT(bNameValid);
 	m_wndTabs.AddTab(&m_wndOutputBuild, strTabName, (UINT)0);
@@ -70,30 +71,28 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ASSERT(bNameValid);
 	m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);
 
-	// Fill output tabs with some dummy text (nothing magic here)
+	// Заполняем панели тестовым текстом
 	FillBuildWindow();
 	FillDebugWindow();
 	FillFindWindow();
 
 	return 0;
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::OnSize(UINT nType, int cx, int cy)
-{
+{ // При изменении размера окна, корректируем размер вкладок, чтобы они занимали всё клиентское пространство
 	CDockablePane::OnSize(nType, cx, cy);
-
-	// Tab control should cover the whole client area:
 	m_wndTabs.SetWindowPos (nullptr, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::AdjustHorzScroll(CListBox& wndListBox)
-{
+{ // Вычисляем максимальную ширину текста в списке и устанавливаем горизонтальную прокрутку, чтобы обеспечить видимость всего текста
 	CClientDC dc(this);
 	CFont* pOldFont = dc.SelectObject(&afxGlobalData.fontRegular);
 
 	int cxExtentMax = 0;
 
-	for (int i = 0; i < wndListBox.GetCount(); i ++)
+	for (int i = 0; i < wndListBox.GetCount(); ++i)
 	{
 		CString strItem;
 		wndListBox.GetText(i, strItem);
@@ -104,46 +103,49 @@ void COutputWnd::AdjustHorzScroll(CListBox& wndListBox)
 	wndListBox.SetHorizontalExtent(cxExtentMax);
 	dc.SelectObject(pOldFont);
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::FillBuildWindow()
-{
+{ // Заполняем панель Build тестовыми строками, демонстрируя, что вывод отображается в виде строк списка, но при этом можно изменить способ отображения по своему усмотрению
 	m_wndOutputBuild.AddString(_T("Build output is being displayed here."));
 	m_wndOutputBuild.AddString(_T("The output is being displayed in rows of a list view"));
 	m_wndOutputBuild.AddString(_T("but you can change the way it is displayed as you wish..."));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::FillDebugWindow()
-{
+{ // Заполняем панель Debug тестовыми строками, демонстрируя, что вывод отображается в виде строк списка, но при этом можно изменить способ отображения по своему усмотрению
 	m_wndOutputDebug.AddString(_T("Debug output is being displayed here."));
 	m_wndOutputDebug.AddString(_T("The output is being displayed in rows of a list view"));
 	m_wndOutputDebug.AddString(_T("but you can change the way it is displayed as you wish..."));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::FillFindWindow()
-{
+{ // Заполняем панель Find тестовыми строками, демонстрируя, что вывод отображается в виде строк списка, но при этом можно изменить способ отображения по своему усмотрению
 	m_wndOutputFind.AddString(_T("Find output is being displayed here."));
 	m_wndOutputFind.AddString(_T("The output is being displayed in rows of a list view"));
 	m_wndOutputFind.AddString(_T("but you can change the way it is displayed as you wish..."));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputWnd::UpdateFonts()
-{
+{ // Устанавливаем шрифт для всех панелей вывода, используя глобальный шрифт, определённый в MFC
 	m_wndOutputBuild.SetFont(&afxGlobalData.fontRegular);
 	m_wndOutputDebug.SetFont(&afxGlobalData.fontRegular);
 	m_wndOutputFind.SetFont(&afxGlobalData.fontRegular);
 }
+//------------------------------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
+
+
+
 // COutputList1
-
-COutputList::COutputList() noexcept
-{
-}
-
+//------------------------------------------------------------------------------------------------------------
 COutputList::~COutputList()
 {
 }
-
+//------------------------------------------------------------------------------------------------------------
+COutputList::COutputList() noexcept
+{
+}
+//------------------------------------------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(COutputList, CListBox)
 	ON_WM_CONTEXTMENU()
 	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
@@ -151,11 +153,9 @@ BEGIN_MESSAGE_MAP(COutputList, CListBox)
 	ON_COMMAND(ID_VIEW_OUTPUTWND, OnViewOutput)
 	ON_WM_WINDOWPOSCHANGING()
 END_MESSAGE_MAP()
-/////////////////////////////////////////////////////////////////////////////
-// COutputList message handlers
-
+//------------------------------------------------------------------------------------------------------------
 void COutputList::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
-{
+{ // При вызове контекстного меню, загружаем меню из ресурсов и отображаем его в позиции курсора
 	CMenu menu;
 	menu.LoadMenu(IDR_OUTPUT_POPUP);
 
@@ -174,19 +174,19 @@ void COutputList::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 
 	SetFocus();
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputList::OnEditCopy()
-{
+{ // При выборе команды "Copy" в контекстном меню, отображаем сообщение (в реальной реализации здесь будет код для копирования текста в буфер обмена)
 	MessageBox(_T("Copy output"));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputList::OnEditClear()
-{
+{ // При выборе команды "Clear" в контекстном меню, отображаем сообщение (в реальной реализации здесь будет код для очистки содержимого панели вывода)
 	MessageBox(_T("Clear output"));
 }
-
+//------------------------------------------------------------------------------------------------------------
 void COutputList::OnViewOutput()
-{
+{ // При выборе команды "View Output" в контекстном меню, скрываем панель вывода, если она видима, или показываем её, если она скрыта
 	CDockablePane* pParentBar = DYNAMIC_DOWNCAST(CDockablePane, GetOwner());
 	CMDIFrameWndEx* pMainFrame = DYNAMIC_DOWNCAST(CMDIFrameWndEx, GetTopLevelFrame());
 
@@ -198,3 +198,4 @@ void COutputList::OnViewOutput()
 
 	}
 }
+//------------------------------------------------------------------------------------------------------------
