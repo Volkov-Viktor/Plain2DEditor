@@ -33,6 +33,42 @@ CPlain2DEditorDoc::CPlain2DEditorDoc() noexcept
 	// TODO: добавьте код однократной инициализации здесь
 }
 //------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorDoc::Add_Shape(CShape* shape)
+{
+	if (!shape)
+		return;
+
+	m_Shapes.Add(shape);
+	SetModifiedFlag(TRUE);
+	UpdateAllViews(nullptr);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorDoc::Clear_All_Shapes() 
+{
+	for (int i = 0; i < m_Shapes.GetSize(); ++i)
+		delete m_Shapes[i];
+
+	m_Shapes.RemoveAll();
+	SetModifiedFlag(TRUE);
+	UpdateAllViews(nullptr);
+}
+//------------------------------------------------------------------------------------------------------------
+bool CPlain2DEditorDoc::Undo_Last()
+{
+	int i = m_Shapes.GetSize();
+
+	if (i == 0)
+		return false;
+
+	delete m_Shapes[i - 1];
+	m_Shapes.RemoveAt(i - 1);
+
+	SetModifiedFlag(TRUE);
+	UpdateAllViews(nullptr);
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------
 BOOL CPlain2DEditorDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument()) // вызов реализации базового класса

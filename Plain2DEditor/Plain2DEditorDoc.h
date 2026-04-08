@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Shape.h"
+
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorDoc : public CDocument
 {
@@ -12,9 +14,12 @@ protected: // create from serialization only
 
 // Attributes
 public:
-
+	CObArray m_Shapes;
 // Operations
 public:
+	void Add_Shape(CShape* shape);
+	void Clear_All_Shapes();
+	bool Undo_Last();
 
 // Overrides
 public:

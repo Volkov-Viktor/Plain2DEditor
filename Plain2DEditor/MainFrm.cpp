@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "framework.h"
 #include "Plain2DEditor.h"
-
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -40,7 +39,7 @@ CMainFrame::~CMainFrame()
 CMainFrame::CMainFrame() noexcept
 {
 	// TODO: добавить инициализацию полей класса
-	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
+	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WINDOWS_7);
 }
 //------------------------------------------------------------------------------------------------------------
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -80,6 +79,36 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ASSERT(bNameValid);
 	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 
+	// Добавление панели инструментов фигур
+	if (!m_wnd_Tool_Bar_Shapes.CreateEx(this, TBSTYLE_FLAT,
+		WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC))
+	{
+		TRACE0("Failed to create shapes toolbar\n");
+		return -1;
+	}
+
+	if (!m_wnd_Tool_Bar_Shapes.LoadToolBar(IDR_TOOL_BAR_SHAPES)) // проверить загрузку ресурса
+	{
+		TRACE0("Failed to load shapes toolbar resource\n");
+		return -1;
+	}
+
+	m_wnd_Tool_Bar_Shapes.SetPaneStyle(m_wnd_Tool_Bar_Shapes.GetPaneStyle() | CBRS_SIZE_DYNAMIC);
+	m_wnd_Tool_Bar_Shapes.EnableDocking(CBRS_ALIGN_ANY);
+	
+	// Добавление панели инструментов цветовой палитры
+	//CMFCToolBar m_wnd_Tool_Bar_Colors;
+	//if (!m_wnd_Tool_Bar_Colors.CreateEx(this, TBSTYLE_FLAT,
+	//	WS_CHILD | WS_VISIBLE | CBRS_LEFT | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC))
+	//{
+	//	TRACE0("Failed to create colors toolbar\n");
+	//	return -1;
+	//}
+	//m_wnd_Tool_Bar_Colors.LoadToolBar(IDR_TOOLBAR_COLORS); // ID ресурса с палитрой цветов
+	//m_wnd_Tool_Bar_Colors.SetPaneStyle(m_wnd_Tool_Bar_Colors.GetPaneStyle() | CBRS_SIZE_DYNAMIC);
+	//m_wnd_Tool_Bar_Colors.MoveBar(CBRS_ALIGN_LEFT, 1); // Размещаем ниже первого тулбара
+	//DockPane(&m_wnd_Tool_Bar_Colors);
+
 	InitUserToolbars(nullptr, uiFirstUserToolBarId, uiLastUserToolBarId);  // Инициализация пользовательских панелей инструментов (до 10 штук)
 
 	// Создание строки состояния и настройка индикаторов (Caps Lock, Num Lock и т. д.)
@@ -97,9 +126,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
+	DockPane(&m_wnd_Tool_Bar_Shapes);
 
 
-	// Настройка поведения док-окон (как в Visual Studio 2005)
+	// Настройка поведения док-окон
 	CDockingManager::SetDockingMode(DT_SMART);
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);  // Включение режима автоскрытия панелей
 
@@ -114,13 +144,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// Настройка и закрепление док-панелей
-	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndFileView);
-	CDockablePane* pTabbedBar = nullptr;
-	m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndOutput);
+	//m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
+	//m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
+	//DockPane(&m_wndFileView);
+	//CDockablePane* pTabbedBar = nullptr;
+	//m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
+	//m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	//DockPane(&m_wndOutput);
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndProperties);
 
@@ -180,34 +210,34 @@ BOOL CMainFrame::CreateDockingWindows()
 	BOOL bNameValid;
 
 	// Создаём панель Class View
-	CString strClassView;
-	bNameValid = strClassView.LoadString(IDS_CLASS_VIEW);
-	ASSERT(bNameValid);
-	if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create Class View window\n");
-		return FALSE;
-	}
+	//CString strClassView;
+	//bNameValid = strClassView.LoadString(IDS_CLASS_VIEW);
+	//ASSERT(bNameValid);
+	//if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("Failed to create Class View window\n");
+	//	return FALSE;
+	//}
 
 	// Создаём панель File View
-	CString strFileView;
-	bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
-	ASSERT(bNameValid);
-	if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create File View window\n");
-		return FALSE;
-	}
+	//CString strFileView;
+	//bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
+	//ASSERT(bNameValid);
+	//if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("Failed to create File View window\n");
+	//	return FALSE;
+	//}
 
 	// Создаём окно Output
-	CString strOutputWnd;
-	bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND);
-	ASSERT(bNameValid);
-	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create Output window\n");
-		return FALSE;
-	}
+	//CString strOutputWnd;
+	//bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND);
+	//ASSERT(bNameValid);
+	//if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("Failed to create Output window\n");
+	//	return FALSE;
+	//}
 
 	// Создаём окно Properties
 	CString strPropertiesWnd;
@@ -225,14 +255,14 @@ BOOL CMainFrame::CreateDockingWindows()
 //------------------------------------------------------------------------------------------------------------
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 { // Установка иконок для док‑панелей (с учётом режима цветов)
-	HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndFileView.SetIcon(hFileViewIcon, FALSE);
+	//HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	//m_wndFileView.SetIcon(hFileViewIcon, FALSE);
 
-	HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndClassView.SetIcon(hClassViewIcon, FALSE);
+	//HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	//m_wndClassView.SetIcon(hClassViewIcon, FALSE);
 
-	HICON hOutputBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OUTPUT_WND_HC : IDI_OUTPUT_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndOutput.SetIcon(hOutputBarIcon, FALSE);
+	//HICON hOutputBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OUTPUT_WND_HC : IDI_OUTPUT_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	//m_wndOutput.SetIcon(hOutputBarIcon, FALSE);
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
@@ -343,7 +373,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 		CDockingManager::SetDockingMode(DT_SMART);
 	}
 
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 	RedrawWindow(nullptr, nullptr, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
 	theApp.WriteInt(_T("ApplicationLook"), theApp.m_nAppLook);
@@ -379,6 +409,6 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 { // обработка изменения системных параметров (например, при смене темы оформления Windows)
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
-	m_wndOutput.UpdateFonts();
+	//m_wndOutput.UpdateFonts();
 }
 //------------------------------------------------------------------------------------------------------------

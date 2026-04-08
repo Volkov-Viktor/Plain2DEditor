@@ -13,6 +13,7 @@
 
 #include "Plain2DEditorDoc.h"
 #include "Plain2DEditorView.h"
+#include "Ellipse.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,6 +31,11 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CPlain2DEditorView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
+	ON_COMMAND(ID_ELLIPSE, &CPlain2DEditorView::On_Tool_Ellipse)
+	ON_UPDATE_COMMAND_UI(ID_ELLIPSE, &CPlain2DEditorView::On_Update_Tool_Ellipse)
 END_MESSAGE_MAP()
 //------------------------------------------------------------------------------------------------------------
 CPlain2DEditorView::~CPlain2DEditorView()
@@ -49,15 +55,23 @@ BOOL CPlain2DEditorView::PreCreateWindow(CREATESTRUCT& cs)
 	return CView::PreCreateWindow(cs);  // Вызываем реализацию базового класса
 }
 //------------------------------------------------------------------------------------------------------------
-void CPlain2DEditorView::OnDraw(CDC* /*pDC*/)
+void CPlain2DEditorView::OnDraw(CDC* pDC)
 { // Основной метод отрисовки содержимого
 	CPlain2DEditorDoc* pDoc = GetDocument();  // Получаем указатель на документ
 	ASSERT_VALID(pDoc);  // Проверяем корректность указателя на документ
 	if (!pDoc)
 		return;  // Если документ не найден, выходим
 
-	// TODO: добавьте код отрисовки данных документа здесь
-	// Например: отрисовка геометрических фигур, текста, графических объектов
+	for (int i = 0; i < pDoc->m_Shapes.GetSize(); i++)
+	{ // отсрисовка сохраненных фигур из документа
+		CShape* shape = (CShape*)pDoc->m_Shapes[i];
+
+		if (shape)
+			shape->Draw(pDC);
+	}
+
+	// отрисовать временную фигуру (при рисовании)
+	if (m_pCurrent_Shape) m_pCurrent_Shape->Draw(pDC);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnFilePrintPreview()
@@ -114,3 +128,80 @@ CPlain2DEditorDoc* CPlain2DEditorView::GetDocument() const // non-debug version 
 }
 //------------------------------------------------------------------------------------------------------------
 #endif //_DEBUG
+//------------------------------------------------------------------------------------------------------------
+CShape* CPlain2DEditorView::Create_Shape(ETool_Type type)
+{
+	switch (type)
+	{
+	case ETool_Type::Tool_Ellipse:
+		return new CEllipse();
+	case ETool_Type::Tool_Line:
+	case ETool_Type::Tool_Rect:
+	default:
+		return nullptr;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	if (m_Current_Tool == ETool_Type::Tool_None)
+	{
+		CView::OnLButtonDown(0, point);
+		return;
+	}
+
+	m_Start_Point = point;
+	m_Is_Drawing = true;
+
+	m_pCurrent_Shape = Create_Shape(m_Current_Tool);
+
+	if (m_pCurrent_Shape == nullptr)
+	{
+		m_Is_Drawing = false;
+		return;
+	}
+
+	m_pCurrent_Shape->Set_Paint_Area(CRect(point, point));
+	SetCapture(); // захват движения мыши
+	Invalidate();
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if (!m_Is_Drawing || !m_pCurrent_Shape)
+		return;
+
+	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+	Invalidate();
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if (!m_Is_Drawing || !m_pCurrent_Shape)
+		return;
+
+	ReleaseCapture(); // освобождение захвата мыши
+	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+
+	CPlain2DEditorDoc* pDoc = GetDocument();
+	if (pDoc)
+		pDoc->Add_Shape(m_pCurrent_Shape); // документ теперь владеет фигурой
+
+	m_pCurrent_Shape = nullptr;
+	m_Is_Drawing = false;
+	Invalidate();
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Ellipse()
+{
+	if (m_Current_Tool == ETool_Type::Tool_None)
+		m_Current_Tool = ETool_Type::Tool_Ellipse;
+	else if (m_Current_Tool == ETool_Type::Tool_Ellipse)
+		m_Current_Tool = ETool_Type::Tool_None;
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool_Ellipse(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_Current_Tool == ETool_Type::Tool_Ellipse);
+}
+//------------------------------------------------------------------------------------------------------------

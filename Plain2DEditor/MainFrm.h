@@ -3,9 +3,9 @@
 //
 
 #pragma once
-#include "FileView.h"
-#include "ClassView.h"
-#include "OutputWnd.h"
+//#include "FileView.h"
+//#include "ClassView.h"
+//#include "OutputWnd.h"
 #include "PropertiesWnd.h"
 
 //------------------------------------------------------------------------------------------------------------
@@ -40,9 +40,10 @@ protected:  // control bar embedded members
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
-	CFileView         m_wndFileView;
-	CClassView        m_wndClassView;
-	COutputWnd        m_wndOutput;
+	CMFCToolBar       m_wnd_Tool_Bar_Shapes;
+	//CFileView         m_wndFileView;
+	//CClassView        m_wndClassView;
+	//COutputWnd        m_wndOutput;
 	CPropertiesWnd    m_wndProperties;
 
 // Generated message map functions

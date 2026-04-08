@@ -183,9 +183,13 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ClassView.h" />
+    <ClInclude Include="ClassView.h">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </ClInclude>
+    <ClInclude Include="Ellipse.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="pch.h" />
@@ -193,13 +197,17 @@
     <ClInclude Include="Plain2DEditorDoc.h" />
     <ClInclude Include="Plain2DEditorView.h" />
     <ClInclude Include="PropertiesWnd.h" />
+    <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClassView.cpp" />
+    <ClCompile Include="Ellipse.cpp" />
     <ClCompile Include="FileView.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="pch.cpp">
@@ -212,16 +220,22 @@
     <ClCompile Include="Plain2DEditorDoc.cpp" />
     <ClCompile Include="Plain2DEditorView.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
+    <ClCompile Include="Rect.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="ViewTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Plain2DEditor.reg" />
+    <None Include="res\idr_tool.bin" />
     <None Include="res\Plain2DEditor.rc2" />
+    <None Include="res\shapes.bin" />
+    <None Include="res\sort.bin" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Plain2DEditor.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
     <Image Include="res\classview.bmp" />
     <Image Include="res\classview_hc.bmp" />
     <Image Include="res\class_view.ico" />
@@ -232,6 +246,7 @@
     <Image Include="res\fileview_hc.bmp" />
     <Image Include="res\file_view.ico" />
     <Image Include="res\file_view_hc.ico" />
+    <Image Include="res\l.bmp" />
     <Image Include="res\menuimages.bmp" />
     <Image Include="res\menuimages_hc.bmp" />
     <Image Include="res\output_wnd.ico" />
@@ -242,9 +257,16 @@
     <Image Include="res\properties_hc.bmp" />
     <Image Include="res\properties_wnd.ico" />
     <Image Include="res\properties_wnd_hc.ico" />
+    <Image Include="res\shapes.bmp" />
+    <Image Include="res\shps.bmp" />
     <Image Include="res\sort.bmp" />
     <Image Include="res\sort_hc.bmp" />
+    <Image Include="res\sort_rest.bmp" />
+    <Image Include="res\teeeee.bmp" />
+    <Image Include="res\teests.bmp" />
     <Image Include="res\Toolbar.bmp" />
+    <Image Include="res\toolbar1.bmp" />
+    <Image Include="res\toolbar2.bmp" />
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\userimages.bmp" />
   </ItemGroup>
