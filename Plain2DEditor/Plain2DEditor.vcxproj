@@ -183,11 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ClassView.h">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-    </ClInclude>
     <ClInclude Include="Ellipse.h" />
-    <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="MainFrm.h" />
@@ -204,9 +200,7 @@
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="Ellipse.cpp" />
-    <ClCompile Include="FileView.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
