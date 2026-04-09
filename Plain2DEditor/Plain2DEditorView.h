@@ -2,8 +2,9 @@
 #pragma once
 
 #include "Plain2DEditorDoc.h"
-#include "Ellipse.h"
+#include "Line.h"
 #include "Rect.h"
+#include "Ellipse.h"
 
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorView : public CView
@@ -69,9 +70,11 @@ protected:
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 
 	afx_msg void On_Tool_Selected(ETool_Type tool_type);
+	afx_msg void On_Tool_Line();
 	afx_msg void On_Tool_Rectangle();
 	afx_msg void On_Tool_Ellipse();
 	afx_msg void On_Update_Tool(CCmdUI* pCmdUI, ETool_Type tool_type);
+	afx_msg void On_Update_Tool_Line(CCmdUI* pCmdUI);
 	afx_msg void On_Update_Tool_Rectangle(CCmdUI* pCmdUI);
 	afx_msg void On_Update_Tool_Ellipse(CCmdUI* pCmdUI);
 

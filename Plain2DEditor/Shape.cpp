@@ -3,24 +3,24 @@
 
 // CShape
 //------------------------------------------------------------------------------------------------------------
-CShape::~CShape() noexcept
+CShape::~CShape()
 {
 }
 //------------------------------------------------------------------------------------------------------------
-CShape::CShape()
+CShape::CShape() noexcept
 	: m_Paint_Area(0, 0, 0, 0), m_Fill_Color(RGB(255, 255, 255)), m_Border_Color(RGB(0, 0, 0)), m_Border_Width(2)
 {
 }
 //------------------------------------------------------------------------------------------------------------
-void CShape::Set_Paint_Area(const CRect& rc)
+void CShape::Set_Paint_Area(const CRect& rect)
 {
-	m_Paint_Area = rc;
+	m_Paint_Area = rect;
 	m_Paint_Area.NormalizeRect();
 }
 //------------------------------------------------------------------------------------------------------------
-BOOL CShape::Hit_Test(const CPoint &pt) const
+BOOL CShape::Hit_Test(const CPoint &point) const
 {
-	return m_Paint_Area.PtInRect(pt);
+	return m_Paint_Area.PtInRect(point);
 }
 //------------------------------------------------------------------------------------------------------------
 void CShape::Serialize(CArchive& ar)

@@ -7,11 +7,11 @@ class CShape : public CObject
 {
 public:
 	virtual ~CShape();
-	CShape();
+	CShape() noexcept;
 
 	virtual void Draw(CDC* pDC) = 0;
-	virtual void Set_Paint_Area(const CRect& rc);
-	virtual BOOL Hit_Test(const CPoint &pt) const;
+	virtual void Set_Paint_Area(const CRect& rect);
+	virtual BOOL Hit_Test(const CPoint &point) const;
 	virtual void Serialize(CArchive& ar) override;
 
 	// Утилиты доступа к цветам/толщине

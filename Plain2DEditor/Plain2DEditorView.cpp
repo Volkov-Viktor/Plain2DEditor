@@ -31,6 +31,8 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
+	ON_COMMAND(ID_LINE, &CPlain2DEditorView::On_Tool_Line)
+	ON_UPDATE_COMMAND_UI(ID_LINE, &CPlain2DEditorView::On_Update_Tool_Line)
 	ON_COMMAND(ID_RECT, &CPlain2DEditorView::On_Tool_Rectangle)
 	ON_UPDATE_COMMAND_UI(ID_RECT, &CPlain2DEditorView::On_Update_Tool_Rectangle)
 	ON_COMMAND(ID_ELLIPSE, &CPlain2DEditorView::On_Tool_Ellipse)
@@ -83,15 +85,14 @@ void CPlain2DEditorView::OnDraw(CDC* pDC)
 		}
 	}
 
-	// отрисовать временную фигуру (при рисовании)
+	// Отрисовка временной фигуры (при рисовании)
 	if (m_pCurrent_Shape) 
 		m_pCurrent_Shape->Draw(&memDC);
 
 	// Копируем на экран
 	pDC->BitBlt(0, 0, client_rect.Width(), client_rect.Height(), &memDC, 0, 0, SRCCOPY);
 
-	// Восстановление
-	memDC.SelectObject(pOldBmp);
+	memDC.SelectObject(pOldBmp); // восстановление
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnFilePrintPreview()
@@ -158,12 +159,12 @@ CShape* CPlain2DEditorView::Create_Shape(ETool_Type type)
 {
 	switch (type)
 	{
-	case ETool_Type::Tool_Ellipse:
-		return new CEllipse();
 	case ETool_Type::Tool_Line:
-		return nullptr;
+		return new CLine();
 	case ETool_Type::Tool_Rect:
 		return new CRectangle();
+	case ETool_Type::Tool_Ellipse:
+		return new CEllipse();
 	default:
 		return nullptr;
 	}
@@ -201,7 +202,13 @@ void CPlain2DEditorView::OnMouseMove(UINT nFlags, CPoint point)
 	if (!m_Is_Drawing || !m_pCurrent_Shape)
 		return;
 
-	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+	CLine* line = dynamic_cast<CLine*>(m_pCurrent_Shape);
+	if (line != nullptr)
+		line->Update_End_Point(point);
+	else
+		m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+
+	// Вычисляем область для частичной перерисовки
 	CRect new_rect(m_Start_Point, point);
 	new_rect.NormalizeRect();
 	new_rect.InflateRect(m_Stoke_Size, m_Stoke_Size);
@@ -211,14 +218,9 @@ void CPlain2DEditorView::OnMouseMove(UINT nFlags, CPoint point)
 	if (!m_Prev_Rect_Drawn.IsRectEmpty())
 		old_rect.UnionRect(old_rect, m_Prev_Rect_Drawn);
 
-	// Обновляем предыдущую временную фигуру
-	m_Prev_Rect_Drawn = new_rect;
+	m_Prev_Rect_Drawn = new_rect; // Обновляем предыдущую временную фигуру
 
-	// Обновляем саму фигуру (без падов — Set_Paint_Area принимает реальную область)
-	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
-
-	// Инвалидируем только нужную область (не стираем фон — FALSE)
-	InvalidateRect(&old_rect, FALSE);
+	InvalidateRect(&old_rect, FALSE); // инвалидируем только нужную область (не стираем фон — FALSE)
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
@@ -227,9 +229,14 @@ void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
 		return;
 
 	ReleaseCapture(); // освобождение захвата мыши
-	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+	
+	CLine* line = dynamic_cast<CLine*>(m_pCurrent_Shape);
+	if (line != nullptr)
+		line->Update_End_Point(point);
+	else
+		m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
 
-	// вычислим финальную область для перерисовки (включая запас под абрис)
+	// Вычисление финальной области для перерисовки (включая запас под абрис)
 	CRect final_rect(m_Start_Point, point);
 	final_rect.NormalizeRect();
 	final_rect.InflateRect(m_Stoke_Size, m_Stoke_Size);
@@ -259,6 +266,11 @@ void CPlain2DEditorView::On_Tool_Selected(ETool_Type tool_type)
 		m_Current_Tool = tool_type;
 }
 //------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Line()
+{
+	On_Tool_Selected(ETool_Type::Tool_Line);
+}
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Tool_Rectangle()
 {
 	On_Tool_Selected(ETool_Type::Tool_Rect);
@@ -272,6 +284,11 @@ void CPlain2DEditorView::On_Tool_Ellipse()
 void CPlain2DEditorView::On_Update_Tool(CCmdUI* pCmdUI, ETool_Type tool_type)
 {
 	pCmdUI->SetCheck(m_Current_Tool == tool_type);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool_Line(CCmdUI* pCmdUI)
+{
+	On_Update_Tool(pCmdUI, ETool_Type::Tool_Line);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Update_Tool_Rectangle(CCmdUI* pCmdUI)
