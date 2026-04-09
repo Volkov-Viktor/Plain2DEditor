@@ -1,7 +1,9 @@
 // Plain2DEditorView.h : interface of the CPlain2DEditorView class
 #pragma once
 
-#include "Shape.h"
+#include "Plain2DEditorDoc.h"
+#include "Ellipse.h"
+#include "Rect.h"
 
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorView : public CView
@@ -66,7 +68,11 @@ protected:
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 
+	afx_msg void On_Tool_Selected(ETool_Type tool_type);
+	afx_msg void On_Tool_Rectangle();
 	afx_msg void On_Tool_Ellipse();
+	afx_msg void On_Update_Tool(CCmdUI* pCmdUI, ETool_Type tool_type);
+	afx_msg void On_Update_Tool_Rectangle(CCmdUI* pCmdUI);
 	afx_msg void On_Update_Tool_Ellipse(CCmdUI* pCmdUI);
 
 	DECLARE_MESSAGE_MAP()

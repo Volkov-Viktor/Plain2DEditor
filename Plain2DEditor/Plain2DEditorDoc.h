@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Shape.h"
+#include <propkey.h>
 
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorDoc : public CDocument

@@ -11,9 +11,9 @@ CEllipse::CEllipse() noexcept
 {
 }
 //------------------------------------------------------------------------------------------------------------
-void CEllipse::Set_Paint_Area(const CRect& rc)
+void CEllipse::Set_Paint_Area(const CRect& rect)
 {
-	CShape::Set_Paint_Area(rc);
+	CShape::Set_Paint_Area(rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void CEllipse::Draw(CDC* pDC)
@@ -33,7 +33,7 @@ void CEllipse::Draw(CDC* pDC)
 	pDC->SelectObject(orig_brush);
 }
 //------------------------------------------------------------------------------------------------------------
-BOOL CEllipse::Hit_Test(const CPoint& pt) const
+BOOL CEllipse::Hit_Test(const CPoint& point) const
 {
 	CRect paint_area = m_Paint_Area;
 	paint_area.NormalizeRect();
@@ -47,8 +47,8 @@ BOOL CEllipse::Hit_Test(const CPoint& pt) const
 	double center_x = paint_area.left + semiaxis_gorizontal;
 	double center_y = paint_area.top + semiaxis_vertical;
 
-	double offset_x = pt.x - center_x;
-	double offset_y = pt.y - center_y;
+	double offset_x = point.x - center_x;
+	double offset_y = point.y - center_y;
 
 	double res = (offset_x * offset_x) / (semiaxis_gorizontal * semiaxis_gorizontal) +
 		(offset_y * offset_y) / (semiaxis_vertical * semiaxis_vertical);

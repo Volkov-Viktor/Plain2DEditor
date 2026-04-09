@@ -10,11 +10,7 @@
 #ifndef SHARED_HANDLERS
 #include "Plain2DEditor.h"
 #endif
-
-#include "Plain2DEditorDoc.h"
 #include "Plain2DEditorView.h"
-#include "Ellipse.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -35,6 +31,8 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
+	ON_COMMAND(ID_RECT, &CPlain2DEditorView::On_Tool_Rectangle)
+	ON_UPDATE_COMMAND_UI(ID_RECT, &CPlain2DEditorView::On_Update_Tool_Rectangle)
 	ON_COMMAND(ID_ELLIPSE, &CPlain2DEditorView::On_Tool_Ellipse)
 	ON_UPDATE_COMMAND_UI(ID_ELLIPSE, &CPlain2DEditorView::On_Update_Tool_Ellipse)
 END_MESSAGE_MAP()
@@ -163,7 +161,9 @@ CShape* CPlain2DEditorView::Create_Shape(ETool_Type type)
 	case ETool_Type::Tool_Ellipse:
 		return new CEllipse();
 	case ETool_Type::Tool_Line:
+		return nullptr;
 	case ETool_Type::Tool_Rect:
+		return new CRectangle();
 	default:
 		return nullptr;
 	}
@@ -251,16 +251,36 @@ void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
 	InvalidateRect(&old_rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Selected(ETool_Type tool_type)
+{
+	if (m_Current_Tool == tool_type)
+		m_Current_Tool = ETool_Type::Tool_None;
+	else
+		m_Current_Tool = tool_type;
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Rectangle()
+{
+	On_Tool_Selected(ETool_Type::Tool_Rect);
+}
+//------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Tool_Ellipse()
 {
-	if (m_Current_Tool == ETool_Type::Tool_None)
-		m_Current_Tool = ETool_Type::Tool_Ellipse;
-	else if (m_Current_Tool == ETool_Type::Tool_Ellipse)
-		m_Current_Tool = ETool_Type::Tool_None;
+	On_Tool_Selected(ETool_Type::Tool_Ellipse);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool(CCmdUI* pCmdUI, ETool_Type tool_type)
+{
+	pCmdUI->SetCheck(m_Current_Tool == tool_type);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool_Rectangle(CCmdUI* pCmdUI)
+{
+	On_Update_Tool(pCmdUI, ETool_Type::Tool_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Update_Tool_Ellipse(CCmdUI* pCmdUI)
 {
-	pCmdUI->SetCheck(m_Current_Tool == ETool_Type::Tool_Ellipse);
+	On_Update_Tool(pCmdUI, ETool_Type::Tool_Ellipse);
 }
 //------------------------------------------------------------------------------------------------------------

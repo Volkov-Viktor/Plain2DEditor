@@ -12,7 +12,6 @@
 #endif
 
 #include "Plain2DEditorDoc.h"
-#include <propkey.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
