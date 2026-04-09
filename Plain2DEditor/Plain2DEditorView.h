@@ -22,6 +22,8 @@ protected:
 	ETool_Type m_Current_Tool = ETool_Type::Tool_None;
 	CShape* m_pCurrent_Shape = nullptr; // временная фигура в процессе рисования
 	CPoint m_Start_Point;
+	CRect m_Prev_Rect_Drawn; // область в процессе рисования фигуры
+	int m_Stoke_Size = 4; // запас для перекрытия не только фигуры, но и абриса вокруг нее
 	bool m_Is_Drawing = false;
 
 // Attributes
@@ -49,6 +51,7 @@ public:
 #endif
 
 protected:
+	
 
 // Generated message map functions
 protected:
@@ -56,6 +59,7 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC); // замена стандартной очистки фона
 	afx_msg CShape* Create_Shape(ETool_Type type);
 
     afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

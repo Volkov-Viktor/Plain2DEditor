@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CPlain2DEditorView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_ERASEBKGND()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
@@ -57,21 +58,42 @@ BOOL CPlain2DEditorView::PreCreateWindow(CREATESTRUCT& cs)
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnDraw(CDC* pDC)
 { // Основной метод отрисовки содержимого
+
+	CRect client_rect;
+	GetClientRect(&client_rect);
+
+	// Создаём совместимый memory DC и bitmap
+	CDC memDC;
+	memDC.CreateCompatibleDC(pDC);
+	CBitmap bmp;
+	bmp.CreateCompatibleBitmap(pDC, client_rect.Width(), client_rect.Height());
+	CBitmap* pOldBmp = memDC.SelectObject(&bmp);
+
+	// Очистка бек‑буфера цветом окна
+	memDC.FillSolidRect(&client_rect,::GetSysColor(COLOR_WINDOW));
+
+	// Рисуем все фигуры в memDC
 	CPlain2DEditorDoc* pDoc = GetDocument();  // Получаем указатель на документ
 	ASSERT_VALID(pDoc);  // Проверяем корректность указателя на документ
-	if (!pDoc)
-		return;  // Если документ не найден, выходим
-
-	for (int i = 0; i < pDoc->m_Shapes.GetSize(); i++)
-	{ // отсрисовка сохраненных фигур из документа
-		CShape* shape = (CShape*)pDoc->m_Shapes[i];
-
-		if (shape)
-			shape->Draw(pDC);
+	if (pDoc)
+	{
+		for (int i = 0; i < pDoc->m_Shapes.GetSize(); i++)
+		{ // отсрисовка сохраненных фигур из документа
+			CShape* shape = (CShape*)pDoc->m_Shapes[i];
+			if (shape)
+				shape->Draw(&memDC);
+		}
 	}
 
 	// отрисовать временную фигуру (при рисовании)
-	if (m_pCurrent_Shape) m_pCurrent_Shape->Draw(pDC);
+	if (m_pCurrent_Shape) 
+		m_pCurrent_Shape->Draw(&memDC);
+
+	// Копируем на экран
+	pDC->BitBlt(0, 0, client_rect.Width(), client_rect.Height(), &memDC, 0, 0, SRCCOPY);
+
+	// Восстановление
+	memDC.SelectObject(pOldBmp);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnFilePrintPreview()
@@ -129,6 +151,11 @@ CPlain2DEditorDoc* CPlain2DEditorView::GetDocument() const // non-debug version 
 //------------------------------------------------------------------------------------------------------------
 #endif //_DEBUG
 //------------------------------------------------------------------------------------------------------------
+BOOL CPlain2DEditorView::OnEraseBkgnd(CDC* /*pDC*/)
+{
+	return TRUE; // фон не стираем, будем рисовать сами в OnDraw (для реализации двойной буферизации)
+}
+//------------------------------------------------------------------------------------------------------------
 CShape* CPlain2DEditorView::Create_Shape(ETool_Type type)
 {
 	switch (type)
@@ -163,6 +190,9 @@ void CPlain2DEditorView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	m_pCurrent_Shape->Set_Paint_Area(CRect(point, point));
 	SetCapture(); // захват движения мыши
+	m_Prev_Rect_Drawn = CRect(point, point);
+	m_Prev_Rect_Drawn.NormalizeRect();
+	m_Prev_Rect_Drawn.InflateRect(m_Stoke_Size, m_Stoke_Size);
 	Invalidate();
 }
 //------------------------------------------------------------------------------------------------------------
@@ -172,7 +202,23 @@ void CPlain2DEditorView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 
 	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
-	Invalidate();
+	CRect new_rect(m_Start_Point, point);
+	new_rect.NormalizeRect();
+	new_rect.InflateRect(m_Stoke_Size, m_Stoke_Size);
+
+	// Область, которую нужно перерисовать — объединение старой и новой временной фигуры
+	CRect old_rect = new_rect;
+	if (!m_Prev_Rect_Drawn.IsRectEmpty())
+		old_rect.UnionRect(old_rect, m_Prev_Rect_Drawn);
+
+	// Обновляем предыдущую временную фигуру
+	m_Prev_Rect_Drawn = new_rect;
+
+	// Обновляем саму фигуру (без падов — Set_Paint_Area принимает реальную область)
+	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
+
+	// Инвалидируем только нужную область (не стираем фон — FALSE)
+	InvalidateRect(&old_rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
@@ -183,13 +229,26 @@ void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
 	ReleaseCapture(); // освобождение захвата мыши
 	m_pCurrent_Shape->Set_Paint_Area(CRect(m_Start_Point, point));
 
+	// вычислим финальную область для перерисовки (включая запас под абрис)
+	CRect final_rect(m_Start_Point, point);
+	final_rect.NormalizeRect();
+	final_rect.InflateRect(m_Stoke_Size, m_Stoke_Size);
+
+	// Объединяем всё
+	CRect old_rect = final_rect;
+	if (!m_Prev_Rect_Drawn.IsRectEmpty())
+		old_rect.UnionRect(old_rect, m_Prev_Rect_Drawn);
+
+	// добавляем в документ
 	CPlain2DEditorDoc* pDoc = GetDocument();
 	if (pDoc)
-		pDoc->Add_Shape(m_pCurrent_Shape); // документ теперь владеет фигурой
+		pDoc->Add_Shape(m_pCurrent_Shape);
 
 	m_pCurrent_Shape = nullptr;
 	m_Is_Drawing = false;
-	Invalidate();
+
+	m_Prev_Rect_Drawn.SetRectEmpty(); // очистка
+	InvalidateRect(&old_rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Tool_Ellipse()
