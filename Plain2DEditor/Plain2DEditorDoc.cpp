@@ -21,6 +21,8 @@
 //------------------------------------------------------------------------------------------------------------
 IMPLEMENT_DYNCREATE(CPlain2DEditorDoc, CDocument) // регистрация класса для динамического создания (MFC)
 BEGIN_MESSAGE_MAP(CPlain2DEditorDoc, CDocument)
+ON_COMMAND(ID_CLEAR_ALL, &CPlain2DEditorDoc::Clear_All_Shapes)
+//ON_UPDATE_COMMAND_UI(ID_CLEAR_ALL, &CPlain2DEditorView::On_Update_Tool_Line)
 END_MESSAGE_MAP()
 //------------------------------------------------------------------------------------------------------------
 CPlain2DEditorDoc::~CPlain2DEditorDoc()

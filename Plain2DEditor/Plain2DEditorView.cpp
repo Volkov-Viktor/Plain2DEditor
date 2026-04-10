@@ -63,36 +63,36 @@ void CPlain2DEditorView::OnDraw(CDC* pDC)
 	GetClientRect(&client_rect);
 
 	// Создаём совместимый memory DC и bitmap
-	CDC memDC;
-	memDC.CreateCompatibleDC(pDC);
+	CDC mem_dc;
+	mem_dc.CreateCompatibleDC(pDC);
 	CBitmap bmp;
 	bmp.CreateCompatibleBitmap(pDC, client_rect.Width(), client_rect.Height());
-	CBitmap* pOldBmp = memDC.SelectObject(&bmp);
+	CBitmap* p_old_bmp = mem_dc.SelectObject(&bmp);
 
 	// Очистка бек‑буфера цветом окна
-	memDC.FillSolidRect(&client_rect,::GetSysColor(COLOR_WINDOW));
+	mem_dc.FillSolidRect(&client_rect,::GetSysColor(COLOR_WINDOW));
 
-	// Рисуем все фигуры в memDC
-	CPlain2DEditorDoc* pDoc = GetDocument();  // Получаем указатель на документ
-	ASSERT_VALID(pDoc);  // Проверяем корректность указателя на документ
-	if (pDoc)
+	// Рисуем все фигуры в mem_dc
+	CPlain2DEditorDoc* p_doc = GetDocument();  // получение указателя на документ
+	ASSERT_VALID(p_doc);  // првоерка корректности указателя на документ
+	if (p_doc)
 	{
-		for (int i = 0; i < pDoc->m_Shapes.GetSize(); i++)
+		for (int i = 0; i < p_doc->m_Shapes.GetSize(); i++)
 		{ // отсрисовка сохраненных фигур из документа
-			CShape* shape = (CShape*)pDoc->m_Shapes[i];
+			CShape* shape = (CShape*)p_doc->m_Shapes[i];
 			if (shape)
-				shape->Draw(&memDC);
+				shape->Draw(&mem_dc);
 		}
 	}
 
 	// Отрисовка временной фигуры (при рисовании)
 	if (m_pCurrent_Shape) 
-		m_pCurrent_Shape->Draw(&memDC);
+		m_pCurrent_Shape->Draw(&mem_dc);
 
 	// Копируем на экран
-	pDC->BitBlt(0, 0, client_rect.Width(), client_rect.Height(), &memDC, 0, 0, SRCCOPY);
+	pDC->BitBlt(0, 0, client_rect.Width(), client_rect.Height(), &mem_dc, 0, 0, SRCCOPY);
 
-	memDC.SelectObject(pOldBmp); // восстановление
+	mem_dc.SelectObject(p_old_bmp); // восстановление
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnFilePrintPreview()
