@@ -1,4 +1,3 @@
-// Plain2DEditorView.h : interface of the CPlain2DEditorView class
 #pragma once
 
 #include "Plain2DEditorDoc.h"
@@ -55,11 +54,6 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-protected:
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
-
 // Implementation
 public:
 	virtual ~CPlain2DEditorView();
@@ -73,12 +67,8 @@ protected:
 
 // Generated message map functions
 protected:
-	afx_msg void OnFilePrintPreview();
-	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-	afx_msg CShape* Create_Shape(ETool_Type type);
+	CShape* Create_Shape(ETool_Type type);
 
     afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -102,8 +92,6 @@ protected:
 	void Apply_Color_To_Shape(CShape* shape);
 
 	DECLARE_MESSAGE_MAP()
-public:
-//	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 };
 //------------------------------------------------------------------------------------------------------------
 #ifndef _DEBUG  // debug version in Plain2DEditorView.cpp

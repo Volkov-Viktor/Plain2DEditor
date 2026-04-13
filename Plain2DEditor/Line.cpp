@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Line.h"
 
+IMPLEMENT_SERIAL(CLine, CShape, 1)
+
 // CEllipse
 //------------------------------------------------------------------------------------------------------------
 CLine::~CLine()

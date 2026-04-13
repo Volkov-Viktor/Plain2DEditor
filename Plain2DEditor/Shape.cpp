@@ -25,11 +25,28 @@ BOOL CShape::Hit_Test(const CPoint &point) const
 //------------------------------------------------------------------------------------------------------------
 void CShape::Serialize(CArchive& ar)
 {
+	CObject::Serialize(ar);
+
+	if (ar.IsStoring())
+	{
+		ar << m_Paint_Area.left << m_Paint_Area.top << m_Paint_Area.right << m_Paint_Area.bottom;
+		ar << (DWORD)m_Fill_Color << (DWORD)m_Border_Color;
+		ar << m_Border_Width;
+	}
+	else
+	{
+		DWORD fill_color, border_color;
+		ar >> m_Paint_Area.left >> m_Paint_Area.top >> m_Paint_Area.right >> m_Paint_Area.bottom;
+		ar >> fill_color >> border_color;
+		m_Fill_Color = (COLORREF)fill_color;
+		m_Border_Color = (COLORREF)border_color;
+		ar >> m_Border_Width;
+	}
 }
 //------------------------------------------------------------------------------------------------------------
-void CShape::Set_Fill_Color(COLORREF c)
+void CShape::Set_Fill_Color(COLORREF color)
 { 
-	m_Fill_Color = c; 
+	m_Fill_Color = color;
 }
 //------------------------------------------------------------------------------------------------------------
 COLORREF CShape::Get_Fill_Color() const
@@ -37,8 +54,8 @@ COLORREF CShape::Get_Fill_Color() const
 	return m_Fill_Color; 
 }
 //------------------------------------------------------------------------------------------------------------
-void CShape::Set_Border_Color(COLORREF c) 
-{ m_Border_Color = c; 
+void CShape::Set_Border_Color(COLORREF color)
+{ m_Border_Color = color;
 }
 //------------------------------------------------------------------------------------------------------------
 COLORREF CShape::Get_Border_Color() const 
@@ -46,9 +63,9 @@ COLORREF CShape::Get_Border_Color() const
 	return m_Border_Color; 
 }
 //------------------------------------------------------------------------------------------------------------
-void CShape::Set_Border_Width(int w) 
+void CShape::Set_Border_Width(int width)
 { 
-	m_Border_Width = max(1, w); 
+	m_Border_Width = max(1, width);
 }
 //------------------------------------------------------------------------------------------------------------
 int  CShape::Get_Border_Width() const 

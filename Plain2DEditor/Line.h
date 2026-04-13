@@ -4,6 +4,8 @@
 
 class CLine : public CShape
 {
+	DECLARE_SERIAL(CLine)
+
 public:
 	virtual ~CLine();
 	CLine() noexcept;

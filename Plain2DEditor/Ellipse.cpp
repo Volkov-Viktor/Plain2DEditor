@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Ellipse.h"
 
+IMPLEMENT_SERIAL(CEllipse, CShape, 1)
+
 // CEllipse
 //------------------------------------------------------------------------------------------------------------
 CEllipse::~CEllipse()

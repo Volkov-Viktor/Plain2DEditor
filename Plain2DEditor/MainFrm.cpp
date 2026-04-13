@@ -1,6 +1,4 @@
 #include "pch.h"
-#include "framework.h"
-#include "Plain2DEditor.h"
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -123,12 +121,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-
-	// Создание панели выбора цветов
-	CMFCColorBar color_bar;
-
 	// Включение док-функционала для меню и панели инструментов
-	// TODO: удалить эти строки, если док-функционал не нужен
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
@@ -174,10 +167,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_FILE_NEW);
 	lstBasicCommands.AddTail(ID_FILE_OPEN);
 	lstBasicCommands.AddTail(ID_FILE_SAVE);
-	lstBasicCommands.AddTail(ID_FILE_PRINT);
 	lstBasicCommands.AddTail(ID_APP_EXIT);
-	lstBasicCommands.AddTail(ID_EDIT_CUT);
-	lstBasicCommands.AddTail(ID_EDIT_PASTE);
 	lstBasicCommands.AddTail(ID_EDIT_UNDO);
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
@@ -212,60 +202,21 @@ BOOL CMainFrame::CreateDockingWindows()
 { // создание и инициализация док‑панели главного окна приложения
 	BOOL bNameValid;
 
-	// Создаём панель Class View
-	//CString strClassView;
-	//bNameValid = strClassView.LoadString(IDS_CLASS_VIEW);
-	//ASSERT(bNameValid);
-	//if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
-	//{
-	//	TRACE0("Failed to create Class View window\n");
-	//	return FALSE;
-	//}
-
-	// Создаём панель File View
-	//CString strFileView;
-	//bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
-	//ASSERT(bNameValid);
-	//if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
-	//{
-	//	TRACE0("Failed to create File View window\n");
-	//	return FALSE;
-	//}
-
-	// Создаём окно Output
-	//CString strOutputWnd;
-	//bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND);
-	//ASSERT(bNameValid);
-	//if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
-	//{
-	//	TRACE0("Failed to create Output window\n");
-	//	return FALSE;
-	//}
-
-	// Создаём окно палитры цветов
 	CString color_pad;
-	color_pad.LoadString(IDS_PROPERTIES_WND);
+	bNameValid = color_pad.LoadString(IDS_PROPERTIES_WND);
+	ASSERT(bNameValid);
 	if (!m_wnd_Color_Pad.Create(color_pad, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Color Palette window\n");
 		return FALSE;
 	}
 
-	SetDockingWindowIcons(theApp.m_bHiColorIcons); // Устанавливаем иконки для док‑панелей (с учётом режима цветов)
-	return TRUE; 
+	SetDockingWindowIcons(theApp.m_bHiColorIcons);
+	return TRUE;
 }
 //------------------------------------------------------------------------------------------------------------
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 { // Установка иконок для док‑панелей (с учётом режима цветов)
-	//HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	//m_wndFileView.SetIcon(hFileViewIcon, FALSE);
-
-	//HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	//m_wndClassView.SetIcon(hClassViewIcon, FALSE);
-
-	//HICON hOutputBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OUTPUT_WND_HC : IDI_OUTPUT_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	//m_wndOutput.SetIcon(hOutputBarIcon, FALSE);
-
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wnd_Color_Pad.SetIcon(hPropertiesBarIcon, FALSE);
 }
@@ -284,9 +235,13 @@ void CMainFrame::Dump(CDumpContext& dc) const
 //------------------------------------------------------------------------------------------------------------
 void CMainFrame::OnViewCustomize()
 { // Обработчик команды «Настройка...» для отображения диалогового окна настройки панелей инструментов
-	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* scan menus */);
+	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE);
 	pDlgCust->EnableUserDefinedToolbars();
-	pDlgCust->Create();
+	if (!pDlgCust->Create())
+	{
+		TRACE0("Failed to create customize dialog\n");
+		delete pDlgCust;
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)

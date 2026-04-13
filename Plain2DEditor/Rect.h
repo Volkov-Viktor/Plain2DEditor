@@ -4,6 +4,8 @@
 
 class CRectangle : public CShape
 {
+	DECLARE_SERIAL(CRectangle)
+
 public:
 	virtual ~CRectangle();
 	CRectangle() noexcept;

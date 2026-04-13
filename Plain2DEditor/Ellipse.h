@@ -4,6 +4,8 @@
 
 class CEllipse : public CShape
 {
+	DECLARE_SERIAL(CEllipse)
+
 public:
 	virtual ~CEllipse();
 	CEllipse() noexcept;

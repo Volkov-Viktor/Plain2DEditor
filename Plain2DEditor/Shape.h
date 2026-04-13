@@ -14,11 +14,11 @@ public:
 	virtual BOOL Hit_Test(const CPoint &point) const;
 	virtual void Serialize(CArchive& ar) override;
 
-	void Set_Fill_Color(COLORREF c);
+	void Set_Fill_Color(COLORREF color);
 	COLORREF Get_Fill_Color() const;
-	void Set_Border_Color(COLORREF c);
+	void Set_Border_Color(COLORREF color);
 	COLORREF Get_Border_Color() const;
-	void Set_Border_Width(int w);
+	void Set_Border_Width(int width);
 	int  Get_Border_Width() const;
 
 protected:

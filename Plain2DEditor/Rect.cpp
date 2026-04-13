@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Rect.h"
 
+IMPLEMENT_SERIAL(CRectangle, CShape, 1)
+
 // CRectangle
 //------------------------------------------------------------------------------------------------------------
 CRectangle::~CRectangle()

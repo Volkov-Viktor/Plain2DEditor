@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "framework.h"
 #include "Color_Pad.h"
 
 #ifdef _DEBUG

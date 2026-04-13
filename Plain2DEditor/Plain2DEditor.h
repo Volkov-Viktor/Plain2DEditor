@@ -1,13 +1,10 @@
-
-// Plain2DEditor.h : main header file for the Plain2DEditor application
-//
 #pragma once
 
 #ifndef __AFXWIN_H__
 	#error "include 'pch.h' before including this file for PCH"
 #endif
 
-#include "resource.h"       // main symbols
+#include "resource.h"
 
 //------------------------------------------------------------------------------------------------------------
 class CPlain2DEditorApp : public CWinAppEx
@@ -33,3 +30,4 @@ public:
 };
 //------------------------------------------------------------------------------------------------------------
 extern CPlain2DEditorApp theApp;
+//------------------------------------------------------------------------------------------------------------

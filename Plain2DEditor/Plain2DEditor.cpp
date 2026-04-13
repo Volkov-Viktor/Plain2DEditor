@@ -1,10 +1,6 @@
 #include "pch.h"  // Предварительно скомпилированный заголовок — ускоряет компиляцию
-#include "framework.h"
-#include "afxwinappex.h"
-#include "afxdialogex.h"
 #include "Plain2DEditor.h"
 #include "MainFrm.h"
-
 #include "Plain2DEditorDoc.h"
 #include "Plain2DEditorView.h"
 
@@ -21,8 +17,6 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorApp, CWinAppEx)
 	// Стандартные команды для работы с документами на основе файлов
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew) // создать новый документ
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen) // открыть существующий документ
-	
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)  // команда настройки печати
 END_MESSAGE_MAP()
 //------------------------------------------------------------------------------------------------------------
 CPlain2DEditorApp::CPlain2DEditorApp() noexcept
@@ -180,19 +174,6 @@ void CPlain2DEditorApp::OnAppAbout()
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::PreLoadState()
 { // Предварительная загрузка состояния приложения (инициализация контекстных меню)
-	BOOL bNameValid;
-	CString strName;
-
-	// Загружаем строку с названием меню «Правка» из ресурсов
-	bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT); // добавление меню «Правка» в менеджер контекстных меню
-	
-	// Загружаем строку с названием меню «Обозреватель» из ресурсов
-	bNameValid = strName.LoadString(IDS_EXPLORER);
-	ASSERT(bNameValid);  // Проверяем, что строка успешно загружена
-	// Добавляем меню «Обозреватель» в менеджер контекстных меню
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EXPLORER);
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorApp::LoadCustomState()
