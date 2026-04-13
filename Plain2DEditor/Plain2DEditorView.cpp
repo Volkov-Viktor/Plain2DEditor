@@ -1,12 +1,6 @@
-// Plain2DEditorView.cpp — реализация класса CPlain2DEditorView (представление документа)
-
 #include "pch.h"
 #include "framework.h"
-// SHARED_HANDLERS может быть определён в проекте ATL для реализации:
-// - обработчиков предварительного просмотра;
-// - создания миниатюр (thumbnails);
-// - фильтров поиска.
-// Позволяет использовать общий код документа в нескольких проектах.
+
 #ifndef SHARED_HANDLERS
 #include "Plain2DEditor.h"
 #endif
@@ -19,12 +13,8 @@
 //------------------------------------------------------------------------------------------------------------
 IMPLEMENT_DYNCREATE(CPlain2DEditorView, CView) // регистрация класса для динамического создания (MFC)
 
-// Карта сообщений для класса представления
 BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	// Стандартные команды печати
-	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CPlain2DEditorView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_ERASEBKGND()
@@ -37,6 +27,11 @@ BEGIN_MESSAGE_MAP(CPlain2DEditorView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RECT, &CPlain2DEditorView::On_Update_Tool_Rectangle)
 	ON_COMMAND(ID_ELLIPSE, &CPlain2DEditorView::On_Tool_Ellipse)
 	ON_UPDATE_COMMAND_UI(ID_ELLIPSE, &CPlain2DEditorView::On_Update_Tool_Ellipse)
+	ON_COMMAND(ID_BRUSH, &CPlain2DEditorView::On_Tool_Brush)
+	ON_UPDATE_COMMAND_UI(ID_BRUSH, &CPlain2DEditorView::On_Update_Tool_Brush)
+	ON_COMMAND(ID_PEN, &CPlain2DEditorView::On_Tool_Pen)
+	ON_UPDATE_COMMAND_UI(ID_PEN, &CPlain2DEditorView::On_Update_Tool_Pen)
+	ON_MESSAGE(WM_COLOR_SELECTED, &CPlain2DEditorView::On_Color_Selected)
 END_MESSAGE_MAP()
 //------------------------------------------------------------------------------------------------------------
 CPlain2DEditorView::~CPlain2DEditorView()
@@ -45,15 +40,11 @@ CPlain2DEditorView::~CPlain2DEditorView()
 //------------------------------------------------------------------------------------------------------------
 CPlain2DEditorView::CPlain2DEditorView() noexcept
 {
-	// TODO: добавьте код инициализации здесь
 }
 //------------------------------------------------------------------------------------------------------------
 BOOL CPlain2DEditorView::PreCreateWindow(CREATESTRUCT& cs)
 { // Предварительная настройка окна перед созданием
-	// TODO: измените класс окна или стили здесь, модифицируя структуру CREATESTRUCT
-	// Например: добавление стилей окна, изменение класса окна
-
-	return CView::PreCreateWindow(cs);  // Вызываем реализацию базового класса
+	return CView::PreCreateWindow(cs);  // вызов реализации базового класса
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnDraw(CDC* pDC)
@@ -69,7 +60,7 @@ void CPlain2DEditorView::OnDraw(CDC* pDC)
 	bmp.CreateCompatibleBitmap(pDC, client_rect.Width(), client_rect.Height());
 	CBitmap* p_old_bmp = mem_dc.SelectObject(&bmp);
 
-	// Очистка бек‑буфера цветом окна
+	// Очистка бэк‑буфера цветом окна
 	mem_dc.FillSolidRect(&client_rect,::GetSysColor(COLOR_WINDOW));
 
 	// Рисуем все фигуры в mem_dc
@@ -157,31 +148,76 @@ BOOL CPlain2DEditorView::OnEraseBkgnd(CDC* /*pDC*/)
 //------------------------------------------------------------------------------------------------------------
 CShape* CPlain2DEditorView::Create_Shape(ETool_Type type)
 {
+	CShape* shape = nullptr;
+
 	switch (type)
 	{
 	case ETool_Type::Tool_Line:
-		return new CLine();
+		shape = new CLine();
+		break;
 	case ETool_Type::Tool_Rect:
-		return new CRectangle();
+		shape = new CRectangle();
+		break;
 	case ETool_Type::Tool_Ellipse:
-		return new CEllipse();
+		shape = new CEllipse();
+		break;
 	default:
 		return nullptr;
 	}
+
+	// Сразу применяем пользовательские цвета, если они установлены
+	if (shape != nullptr)
+	{
+		if (m_Has_User_Fill_Color)
+			shape->Set_Fill_Color(m_User_Fill_Color);
+		if (m_Has_User_Border_Color)
+			shape->Set_Border_Color(m_User_Border_Color);
+	}
+
+	return shape;
 }
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	// Режим Brush/Pen: применение цвета к существующей фигуре
+	if (m_Color_Target != EColor_Target::Target_None && m_Current_Tool == ETool_Type::Tool_None)
+	{
+		bool color_is_set =
+			(m_Color_Target == EColor_Target::Target_Brush && m_Has_User_Fill_Color) ||
+			(m_Color_Target == EColor_Target::Target_Pen && m_Has_User_Border_Color);
+
+		if (color_is_set)
+		{
+			CPlain2DEditorDoc* pDoc = GetDocument();
+			if (pDoc != nullptr)
+			{
+				// Поиск фигуры под курсором (от верхней к нижней)
+				for (int i = (int)pDoc->m_Shapes.GetSize() - 1; i >= 0; --i)
+				{
+					CShape* shape = (CShape*)pDoc->m_Shapes[i];
+					if (shape != nullptr && shape->Hit_Test(point))
+					{
+						Apply_Color_To_Shape(shape);
+						Invalidate();
+						break;
+					}
+				}
+			}
+		}
+		return; // не передаём дальше — мы в режиме цвета, а не рисования
+	}
+
+	// Режим рисования фигуры
 	if (m_Current_Tool == ETool_Type::Tool_None)
 	{
-		CView::OnLButtonDown(0, point);
+		CView::OnLButtonDown(nFlags, point);
 		return;
 	}
 
 	m_Start_Point = point;
 	m_Is_Drawing = true;
 
-	m_pCurrent_Shape = Create_Shape(m_Current_Tool);
+	m_pCurrent_Shape = Create_Shape(m_Current_Tool); // цвета уже применены внутри
 
 	if (m_pCurrent_Shape == nullptr)
 	{
@@ -190,7 +226,7 @@ void CPlain2DEditorView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 	m_pCurrent_Shape->Set_Paint_Area(CRect(point, point));
-	SetCapture(); // захват движения мыши
+	SetCapture();
 	m_Prev_Rect_Drawn = CRect(point, point);
 	m_Prev_Rect_Drawn.NormalizeRect();
 	m_Prev_Rect_Drawn.InflateRect(m_Stoke_Size, m_Stoke_Size);
@@ -260,6 +296,9 @@ void CPlain2DEditorView::OnLButtonUp(UINT nFlags, CPoint point)
 //------------------------------------------------------------------------------------------------------------
 void CPlain2DEditorView::On_Tool_Selected(ETool_Type tool_type)
 {
+	// Выбор инструмента рисования сбрасывает режим цвета
+	m_Color_Target = EColor_Target::Target_None;
+
 	if (m_Current_Tool == tool_type)
 		m_Current_Tool = ETool_Type::Tool_None;
 	else
@@ -299,5 +338,69 @@ void CPlain2DEditorView::On_Update_Tool_Rectangle(CCmdUI* pCmdUI)
 void CPlain2DEditorView::On_Update_Tool_Ellipse(CCmdUI* pCmdUI)
 {
 	On_Update_Tool(pCmdUI, ETool_Type::Tool_Ellipse);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Brush()
+{
+	m_Current_Tool = ETool_Type::Tool_None; // сброс инструмента рисования
+
+	if (m_Color_Target == EColor_Target::Target_Brush)
+		m_Color_Target = EColor_Target::Target_None; // повторное нажатие — выход из режима
+	else
+		m_Color_Target = EColor_Target::Target_Brush;
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Tool_Pen()
+{
+	m_Current_Tool = ETool_Type::Tool_None; // сброс инструмента рисования
+
+	if (m_Color_Target == EColor_Target::Target_Pen)
+		m_Color_Target = EColor_Target::Target_None; // повторное нажатие — выход из режима
+	else
+		m_Color_Target = EColor_Target::Target_Pen;
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool_Brush(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_Color_Target == EColor_Target::Target_Brush);
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::On_Update_Tool_Pen(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_Color_Target == EColor_Target::Target_Pen);
+}
+//------------------------------------------------------------------------------------------------------------
+LRESULT CPlain2DEditorView::On_Color_Selected(WPARAM wParam, LPARAM /*lParam*/)
+{ // Обработка выбора цвета из палитры
+	COLORREF color = (COLORREF)wParam;
+
+	switch (m_Color_Target)
+	{
+	case EColor_Target::Target_Brush:
+		m_User_Fill_Color = color;
+		m_Has_User_Fill_Color = true;
+		break;
+
+	case EColor_Target::Target_Pen:
+		m_User_Border_Color = color;
+		m_Has_User_Border_Color = true;
+		break;
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorView::Apply_Color_To_Shape(CShape* shape)
+{ // Применение пользовательского цвета к существующей фигуре в зависимости от текущего режима
+	if (shape == nullptr)
+		return;
+
+	if (m_Color_Target == EColor_Target::Target_Brush && m_Has_User_Fill_Color)
+		shape->Set_Fill_Color(m_User_Fill_Color);
+	else if (m_Color_Target == EColor_Target::Target_Pen && m_Has_User_Border_Color)
+		shape->Set_Border_Color(m_User_Border_Color);
 }
 //------------------------------------------------------------------------------------------------------------

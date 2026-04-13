@@ -86,18 +86,23 @@
 #define IDS_EDIT_MENU                   306
 #define IDB_BITMAP1                     324
 #define IDB_TOOL_BAR_SHAPES             324
+#define IDR_BRUSH_PEN                   1329
+#define IDB_BrushPen                    330
+#define IDR_TOOLBAR1                    333
 #define IDR_TOOL_BAR_SHAPES             1321
-#define ID_LINE                         1322
+#define ID_LINE                         1329
 #define ID_ELLIPSE                      1324
 #define ID_CLEAR_ALL                    1325
 #define ID_RECT                         1326
+#define ID_BRUSH                        1327
+#define ID_PEN                          1328
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        325
-#define _APS_NEXT_COMMAND_VALUE         32774
+#define _APS_NEXT_RESOURCE_VALUE        342
+#define _APS_NEXT_COMMAND_VALUE         32776
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

@@ -28,7 +28,7 @@ void CLine::Draw(CDC* pDC)
 	CPen pen(PS_SOLID, m_Border_Width, m_Border_Color);
 	CPen* orig_pen = pDC->SelectObject(&pen);
 
-	// Отрисовка с использонием не нормализованных, а реальных точек
+	// Отрисовка с использованием не нормализованных, а реальных точек
 	pDC->MoveTo(m_Start_Point);
 	pDC->LineTo(m_End_Point);
 
@@ -42,18 +42,18 @@ BOOL CLine::Hit_Test(const CPoint& point) const
 //------------------------------------------------------------------------------------------------------------
 void CLine::Serialize(CArchive& ar)
 {
-	//CShape::Serialize(ar); // базовые поля
+	CShape::Serialize(ar); // базовые поля
 
-	//if (ar.IsStoring())
-	//{
-	//	ar << m_Start_Point.x << m_Start_Point.y;
-	//	ar << m_End_Point.x << m_End_Point.y;
-	//}
-	//else
-	//{
-	//	ar >> m_Start_Point.x >> m_Start_Point.y;
-	//	ar >> m_End_Point.x >> m_End_Point.y;
-	//}
+	if (ar.IsStoring())
+	{
+		ar << m_Start_Point.x << m_Start_Point.y;
+		ar << m_End_Point.x << m_End_Point.y;
+	}
+	else
+	{
+		ar >> m_Start_Point.x >> m_Start_Point.y;
+		ar >> m_End_Point.x >> m_End_Point.y;
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void CLine::Update_End_Point(const CPoint& end_point)

@@ -96,19 +96,23 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wnd_Tool_Bar_Shapes.SetPaneStyle(m_wnd_Tool_Bar_Shapes.GetPaneStyle() | CBRS_SIZE_DYNAMIC);
 	m_wnd_Tool_Bar_Shapes.EnableDocking(CBRS_ALIGN_ANY);
 	
-	// Добавление панели инструментов цветовой палитры
-	//CMFCToolBar m_wnd_Tool_Bar_Colors;
-	//if (!m_wnd_Tool_Bar_Colors.CreateEx(this, TBSTYLE_FLAT,
-	//	WS_CHILD | WS_VISIBLE | CBRS_LEFT | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC))
-	//{
-	//	TRACE0("Failed to create colors toolbar\n");
-	//	return -1;
-	//}
-	//m_wnd_Tool_Bar_Colors.LoadToolBar(IDR_TOOLBAR_COLORS); // ID ресурса с палитрой цветов
-	//m_wnd_Tool_Bar_Colors.SetPaneStyle(m_wnd_Tool_Bar_Colors.GetPaneStyle() | CBRS_SIZE_DYNAMIC);
-	//m_wnd_Tool_Bar_Colors.MoveBar(CBRS_ALIGN_LEFT, 1); // Размещаем ниже первого тулбара
-	//DockPane(&m_wnd_Tool_Bar_Colors);
+	// Добавление панели инструментов BRUSH и PEN
+	if (!m_wnd_Tool_Bar_BP.CreateEx(this, TBSTYLE_FLAT,
+		WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC))
+	{
+		TRACE0("Failed to create brush and pen toolbar\n");
+		return -1;
+	}
 
+	if (!m_wnd_Tool_Bar_BP.LoadToolBar(IDR_BRUSH_PEN)) // проверить загрузку ресурса
+	{
+		TRACE0("Failed to load brush and pen toolbar resource\n");
+		return -1;
+	}
+
+	m_wnd_Tool_Bar_BP.SetPaneStyle(m_wnd_Tool_Bar_BP.GetPaneStyle() | CBRS_SIZE_DYNAMIC);
+	m_wnd_Tool_Bar_BP.EnableDocking(CBRS_ALIGN_ANY);
+	
 	InitUserToolbars(nullptr, uiFirstUserToolBarId, uiLastUserToolBarId);  // Инициализация пользовательских панелей инструментов (до 10 штук)
 
 	// Создание строки состояния и настройка индикаторов (Caps Lock, Num Lock и т. д.)
@@ -119,6 +123,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
+
+	// Создание панели выбора цветов
+	CMFCColorBar color_bar;
+
 	// Включение док-функционала для меню и панели инструментов
 	// TODO: удалить эти строки, если док-функционал не нужен
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -127,6 +135,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
 	DockPane(&m_wnd_Tool_Bar_Shapes);
+	DockPane(&m_wnd_Tool_Bar_BP);
 
 
 	// Настройка поведения док-окон
@@ -144,15 +153,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// Настройка и закрепление док-панелей
-	//m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
-	//m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
-	//DockPane(&m_wndFileView);
-	//CDockablePane* pTabbedBar = nullptr;
-	//m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
-	//m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
-	//DockPane(&m_wndOutput);
-	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndProperties);
+	m_wnd_Color_Pad.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wnd_Color_Pad);
+	m_wnd_Color_Pad.ShowPane(TRUE, FALSE, TRUE);
 
 	OnApplicationLook(theApp.m_nAppLook); // применение сохранённого стиля интерфейса
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR); // Включение меню настройки панелей («Настройка...» в меню «Вид»)
@@ -239,13 +242,12 @@ BOOL CMainFrame::CreateDockingWindows()
 	//	return FALSE;
 	//}
 
-	// Создаём окно Properties
-	CString strPropertiesWnd;
-	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
-	ASSERT(bNameValid);
-	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
+	// Создаём окно палитры цветов
+	CString color_pad;
+	color_pad.LoadString(IDS_PROPERTIES_WND);
+	if (!m_wnd_Color_Pad.Create(color_pad, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("Failed to create Properties window\n");
+		TRACE0("Failed to create Color Palette window\n");
 		return FALSE;
 	}
 
@@ -265,7 +267,7 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	//m_wndOutput.SetIcon(hOutputBarIcon, FALSE);
 
 	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
+	m_wnd_Color_Pad.SetIcon(hPropertiesBarIcon, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 #ifdef _DEBUG

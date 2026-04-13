@@ -118,33 +118,7 @@ IDB_PROPERTIES_HC       BITMAP                  "res\\properties_hc.bmp"
 
 IDR_TOOL_BAR_SHAPES     BITMAP                  "res\\shps.bmp"
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\Plain2DEditor.ico"
-
-IDR_Plain2DEditorTYPE   ICON                    "res\\Plain2DEditorDoc.ico"
-
-IDI_FILE_VIEW           ICON                    "res\\file_view.ico"
-
-IDI_FILE_VIEW_HC        ICON                    "res\\file_view_hc.ico"
-
-IDI_CLASS_VIEW          ICON                    "res\\class_view.ico"
-
-IDI_CLASS_VIEW_HC       ICON                    "res\\class_view_hc.ico"
-
-IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
-
-IDI_OUTPUT_WND_HC       ICON                    "res\\output_wnd_hc.ico"
-
-IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
-
-IDI_PROPERTIES_WND_HC   ICON                    "res\\properties_wnd_hc.ico"
+IDR_BRUSH_PEN           BITMAP                  "res\\bp.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -220,6 +194,40 @@ BEGIN
     BUTTON      ID_CLEAR_ALL
 END
 
+IDR_BRUSH_PEN TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_BRUSH
+    BUTTON      ID_PEN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\Plain2DEditor.ico"
+
+IDR_Plain2DEditorTYPE   ICON                    "res\\Plain2DEditorDoc.ico"
+
+IDI_FILE_VIEW           ICON                    "res\\file_view.ico"
+
+IDI_FILE_VIEW_HC        ICON                    "res\\file_view_hc.ico"
+
+IDI_CLASS_VIEW          ICON                    "res\\class_view.ico"
+
+IDI_CLASS_VIEW_HC       ICON                    "res\\class_view_hc.ico"
+
+IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
+IDI_OUTPUT_WND_HC       ICON                    "res\\output_wnd_hc.ico"
+
+IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
+IDI_PROPERTIES_WND_HC   ICON                    "res\\properties_wnd_hc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -235,9 +243,6 @@ BEGIN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
-        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
-        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
         MENUITEM SEPARATOR
@@ -380,7 +385,7 @@ CAPTION "About Plain2DEditor"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
-    LTEXT           "Plain2DEditor, Version 0.1",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Plain2DEditor, Version 0.6",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2026",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
@@ -581,7 +586,7 @@ BEGIN
     IDS_FILE_VIEW           "File View"
     IDS_CLASS_VIEW          "Class View"
     IDS_OUTPUT_WND          "Output"
-    IDS_PROPERTIES_WND      "Properties"
+    IDS_PROPERTIES_WND      "Color pad"
 END
 
 STRINGTABLE

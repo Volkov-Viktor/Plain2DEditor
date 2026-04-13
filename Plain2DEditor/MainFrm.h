@@ -1,17 +1,9 @@
-
-// MainFrm.h : interface of the CMainFrame class
-//
-
 #pragma once
-//#include "FileView.h"
-//#include "ClassView.h"
-//#include "OutputWnd.h"
-#include "PropertiesWnd.h"
+#include "Color_Pad.h"
 
 //------------------------------------------------------------------------------------------------------------
 class CMainFrame : public CFrameWndEx
-{
-	
+{	
 protected: // create from serialization only
 	CMainFrame() noexcept;
 	DECLARE_DYNCREATE(CMainFrame)
@@ -41,10 +33,8 @@ protected:  // control bar embedded members
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 	CMFCToolBar       m_wnd_Tool_Bar_Shapes;
-	//CFileView         m_wndFileView;
-	//CClassView        m_wndClassView;
-	//COutputWnd        m_wndOutput;
-	CPropertiesWnd    m_wndProperties;
+	CMFCToolBar       m_wnd_Tool_Bar_BP;
+	CColor_Pad		  m_wnd_Color_Pad;
 
 // Generated message map functions
 protected:
