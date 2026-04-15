@@ -3,7 +3,7 @@
 
 IMPLEMENT_SERIAL(CLine, CShape, 1)
 
-// CEllipse
+// CLine
 //------------------------------------------------------------------------------------------------------------
 CLine::~CLine()
 {
@@ -17,9 +17,9 @@ CLine::CLine() noexcept
 void CLine::Set_Paint_Area(const CRect& rect)
 {
 	m_Start_Point = CPoint(rect.left, rect.top); // rect передаётся как CRect(startPoint, endPoint) из View
-	m_End_Point = CPoint(rect.right, rect.bottom); // left,top = начало; right,bottom = конец — ДО нормализации
+	m_End_Point = CPoint(rect.right, rect.bottom); // left,top = начало; right,bottom = конец — до нормализации
 
-	CShape::Set_Paint_Area(rect); // вызывается для нормализации ограничевающего прямоугольника
+	CShape::Set_Paint_Area(rect); // вызывается для нормализации ограничивающего прямоугольника
 }
 //------------------------------------------------------------------------------------------------------------
 void CLine::Draw(CDC* pDC)

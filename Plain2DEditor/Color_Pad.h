@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <afxwin.h> 
 
 //------------------------------------------------------------------------------------------------------------
 #define WM_COLOR_SELECTED (WM_APP + 1)

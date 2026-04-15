@@ -84,7 +84,6 @@
 #define IDS_FIND_TAB                    302
 #define IDS_EXPLORER                    305
 #define IDS_EDIT_MENU                   306
-#define IDB_BITMAP1                     324
 #define IDB_TOOL_BAR_SHAPES             324
 #define IDB_BrushPen                    330
 #define IDR_TOOLBAR1                    333

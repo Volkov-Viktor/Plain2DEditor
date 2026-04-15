@@ -47,7 +47,7 @@ void CPlain2DEditorDoc::Clear_All_Shapes()
 //------------------------------------------------------------------------------------------------------------
 bool CPlain2DEditorDoc::Undo_Last()
 {
-	int i = m_Shapes.GetSize();
+	int i = (int)m_Shapes.GetSize();
 
 	if (i == 0)
 		return false;
@@ -86,6 +86,16 @@ void CPlain2DEditorDoc::DeleteContents()
 	CDocument::DeleteContents();
 }
 //------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorDoc::On_Edit_Undo()
+{
+	Undo_Last();
+}
+//------------------------------------------------------------------------------------------------------------
+void CPlain2DEditorDoc::On_Update_Edit_Undo(CCmdUI* pCmdUI)
+{ // Активна только если есть фигуры для отмены
+	pCmdUI->Enable(m_Shapes.GetSize() > 0);
+}
+//------------------------------------------------------------------------------------------------------------
 #ifdef _DEBUG
 void CPlain2DEditorDoc::AssertValid() const
 {
@@ -95,16 +105,6 @@ void CPlain2DEditorDoc::AssertValid() const
 void CPlain2DEditorDoc::Dump(CDumpContext& dc) const
 {
 	CDocument::Dump(dc); // Выводим отладочную информацию о состоянии документа
-}
-//------------------------------------------------------------------------------------------------------------
-void CPlain2DEditorDoc::On_Edit_Undo()
-{
-	Undo_Last();
-}
-//------------------------------------------------------------------------------------------------------------
-void CPlain2DEditorDoc::On_Update_Edit_Undo(CCmdUI* pCmdUI)
-{ // Активна только если есть фигуры для отмены
-	pCmdUI->Enable(m_Shapes.GetSize() > 0);
 }
 //------------------------------------------------------------------------------------------------------------
 #endif //_DEBUG
